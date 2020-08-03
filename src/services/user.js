@@ -8,14 +8,12 @@ const _ = require('lodash');
 
 const systemFieldConfigs = {
     username: {
-        required: true,
         constraints: [
             {maxLength: 20},
             {minLength: 6},
         ]
     },
     email: {
-        required: true,
         constraints: [
             {maxLength: 20},
             {minLength: 6},
@@ -23,7 +21,6 @@ const systemFieldConfigs = {
         ]
     },
     password: {
-        required: true,
         constraints: [
             {maxLength: 50},
             {minLength: 8},

@@ -5,16 +5,16 @@ const {validateFieldValue} = require('../validators');
 
 const clientFieldConfigs = {
     is_trusted: {
-        required: true,
+        optional: false,
     },
     service_name: {
-        required: true,
         constraints: [
             {minLength: 8},
             {maxLength: 30},
         ]
     },
     callback_url: {
+        optional: true,
         constraints: [
             {regexMatch: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)'},
         ]
