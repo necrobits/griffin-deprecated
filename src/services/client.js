@@ -4,9 +4,6 @@ const Hashids = require('hashids/cjs');
 const {validateFieldValue} = require('../validators');
 
 const clientFieldConfigs = {
-    type: {
-        required: true,
-    },
     is_trusted: {
         required: true,
     },
@@ -16,6 +13,11 @@ const clientFieldConfigs = {
             {minLength: 8},
             {maxLength: 30},
         ]
+    },
+    callback_url: {
+        constraints: [
+            {regexMatch: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)'},
+        ]
     }
 };
 const clientIdAlphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -23,13 +25,12 @@ const clientIdMinLength = 10;
 const clientSecretAlphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=-_/';
 const clientSecretMinLength = 30;
 
-const idSalt = 'griffin-salt';
-const secretSalt = 'griffin-secret-salt';
-
 class ClientService {
     constructor() {
         this.clientRepo = Container.get('repo.client');
         this.cryptoService = Container.get('service.crypto');
+        const idSalt = Container.get('config').get('clientSettings.clientIdSalt');
+        const secretSalt = Container.get('config').get('clientSettings.clientSecretSalt');
         this.idHasher = new Hashids(
             idSalt,
             clientIdMinLength,
@@ -49,21 +50,21 @@ class ClientService {
         }
         const {publicKey, privateKey} = await this.cryptoService.generateKeyPair();
         const clientId = this.idHasher.encode(new Date().getTime() + Math.round(Math.random() * 0xFFFF));
-        const clientSecret = this.secretHasher.encode(new Date() + Math.round(Math.random() * 0xFFFFFFFF));
+        const clientSecret = this.secretHasher.encode(new Date().getTime() + Math.round(Math.random() * 0xFFFFFFFF));
         const newClient = {
             client_id: clientId,
             client_secret: clientSecret,
             private_key: privateKey,
             public_key: publicKey,
-            type: clientData.type,
             is_trusted: clientData.is_trusted,
             service_name: clientData.service_name,
+            callback_url: clientData.callback_url,
         };
         return this.clientRepo.createClient(newClient);
     }
 
     async authenticate(clientId, clientSecret) {
-        const client = await this.client.findClientById(clientId);
+        const client = await this.getClientById(clientId);
         if (client == null) {
             throw new Error('unauthorized');
         }
@@ -71,6 +72,10 @@ class ClientService {
             throw new Error('unauthorized');
         }
         return client;
+    }
+
+    getClientById(clientId) {
+        return this.clientRepo.findClientById(clientId);
     }
 }
 

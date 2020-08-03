@@ -69,7 +69,6 @@ class UserService {
         if (user == null) {
             throw new Error('unauthorized');
         }
-        console.log(rawPassword, user.password);
         const passwordMatched = await bcryptCompare(rawPassword, user.password);
         if (!passwordMatched) {
             throw new Error('unauthorized');

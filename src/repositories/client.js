@@ -1,4 +1,6 @@
 const Container = require('typedi').Container;
+const {toJSON} = require('./util');
+
 /**
  * Client are service providers
  */

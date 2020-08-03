@@ -7,8 +7,9 @@ const UserRepository = require('./repositories/user');
 const ClientRepository = require('./repositories/client');
 const UserService = require('./services/user');
 const AuthService = require('./services/auth');
+const ClientService = require('./services/client');
 const CryptoService = require('./services/crypto');
-const AppRouter = require('./api');
+const ApiController = require('./endpoints');
 const installMissingDependencies = require('./bootstrap/install');
 
 function initializeDependencyInjection() {
@@ -17,25 +18,28 @@ function initializeDependencyInjection() {
     Container.set('repo.user', new UserRepository());
     Container.set('repo.client', new ClientRepository());
     // Services
-    Container.set('service.user', new UserService());
-    Container.set('service.auth', new AuthService());
-    Container.set('service.client', {});
     Container.set('service.crypto', new CryptoService());
+    Container.set('service.user', new UserService());
+    Container.set('service.client', new ClientService());
+    Container.set('service.auth', new AuthService());
 }
 
 function initializeExpressApp(app) {
     const bodyParser = require('body-parser');
+    const cookieParser = require('cookie-parser');
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
-    const router = new AppRouter();
-    router.setupRoutes(app);
+    app.use(cookieParser());
+
+    const controller = new ApiController();
+    app.use('/api/v1', controller.router);
 
 }
 
 async function test() {
     //await require('./database/seed').seedUsers();
+    //await require('./database/seed').seedClients();
     //const user = await Container.get('repo.user').findUserByEmail('andytester@gmail.com');
-    Container.get('service.crypto').generateKeyPair();
 }
 
 module.exports = async () => {
@@ -48,7 +52,9 @@ module.exports = async () => {
     const app = express();
     initializeExpressApp(app);
     await test();
-    app.listen(config.get('server.port'), () => {
-        console.log("Server is running on port", config.get('server.port'));
+
+    const port = Container.get('config').get('server.port');
+    app.listen(port, () => {
+        console.log("Server is running on port", port);
     });
 };

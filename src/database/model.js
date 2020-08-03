@@ -99,10 +99,6 @@ function constructClientModel() {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        type: {
-            type: DataTypes.STRING(10),
-            allowNull: false,
-        },
         private_key: {
             type: DataTypes.BLOB,
             allowNull: false,
@@ -110,6 +106,10 @@ function constructClientModel() {
         public_key: {
             type: DataTypes.BLOB,
             allowNull: false,
+        },
+        callback_url: {
+            type: DataTypes.STRING,
+            allowNull: true,
         },
         is_trusted: {
             type: DataTypes.BOOLEAN,

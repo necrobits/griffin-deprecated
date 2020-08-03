@@ -5,8 +5,11 @@ function validateFieldValue(fieldName, value, fieldConfig) {
     const isOptional = _.get(fieldConfig, 'optional', false);
     const constraints = _.get(fieldConfig, 'constraints', []);
 
-    if (!isOptional && value == null) {
-        throw new Error(`field_required: ${fieldName}`);
+    if (value == null) {
+        if (!isOptional) {
+            throw new Error(`field_required: ${fieldName}`);
+        }
+        return true;
     }
     for (let c of constraints) {
         const constraintName = _.keys(c)[0].toLowerCase();

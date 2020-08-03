@@ -1,7 +1,7 @@
 const Container = require('typedi/index').Container;
 const _ = require('lodash');
 const packageJson = require('../../package.json');
-const installPackages = require('./pkg_installer');
+const installPackages = require('./pkg-installer');
 
 const DBDialectPkgs = {
     sqlite: ['sqlite3'],

@@ -19,16 +19,23 @@ userFields:
       - after: 2002-12-14
       - before: now
 
-encryption:
-  keySize: 1024
-  publicKey:
-    type: spki
-  privateKey:
-    type: pkcs8
+clientSettings:
+  encryption:
+    keySize: 1024
+    publicKey:
+      type: spki
+    privateKey:
+      type: pkcs8
+  clientIdSalt: griffin-id-salt
+  clientSecretSalt: griffin-serect-salt
 
 sso:
   usingEmail: false
-  method: signed-jwt
+  methods:
+    - jwt
+jwt:
+  issuer: neuralgi
+  expiration: 604800
 
 dashboard:
   username: admin
