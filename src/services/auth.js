@@ -10,7 +10,6 @@ class AuthService {
     }
 
     async login(id, password) {
-        console.log("authlogin")
         const profile = await this.userService.login(id, password);
         return {
             token: 'fake_token',

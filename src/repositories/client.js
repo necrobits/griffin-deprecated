@@ -1,11 +1,19 @@
 const Container = require('typedi').Container;
-
 /**
  * Client are service providers
  */
 class ClientRepository {
-    constructor(){
+    constructor() {
         this.db = Container.get('db');
+        this.clientModel = Container.get('db.model.client');
+    }
+
+    createClient(client) {
+        return this.clientModel.create(client).then(toJSON);
+    }
+
+    findClientById(clientId) {
+        return this.clientModel.findOne({where: {client_id: clientId}}).then(toJSON);
     }
 }
 

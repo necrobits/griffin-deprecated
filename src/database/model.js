@@ -22,13 +22,6 @@ const EMPTY_DEFAULT = {
     'date': Sequelize.NOW,
 };
 
-function mapDefaultValue(fieldConfig) {
-    const type = fieldConfig['type'];
-    if (type === 'date' && _.get(fieldConfig, 'default') === 'now') {
-        return Sequelize.NOW;
-    }
-    return _.get(fieldConfig, 'default', EMPTY_DEFAULT[type]);
-}
 
 function configToModelField(fieldConfig) {
     if (!_.has(STR_TO_TYPE, fieldConfig['type'])) {
@@ -42,7 +35,7 @@ function configToModelField(fieldConfig) {
     };
 
     if (_.has(fieldConfig, 'default')) {
-        field.defaultValue = mapDefaultValue(fieldConfig);
+        field.defaultValue = _mapDefaultValue(fieldConfig);
     }
     return field;
 }
@@ -52,8 +45,8 @@ function constructUserModel(fields, loginWithEmail) {
     const model = {
         id: {
             primaryKey: true,
-            type: DataTypes.UUID,
-            defaultValue: Sequelize.UUIDV4,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
         },
         email: {
             type: DataTypes.STRING,
@@ -93,11 +86,6 @@ function constructUserModel(fields, loginWithEmail) {
 
 function constructClientModel() {
     const model = {
-        id: {
-            primaryKey: true,
-            type: DataTypes.UUID,
-            defaultValue: Sequelize.UUIDV4,
-        },
         client_id: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -107,6 +95,27 @@ function constructClientModel() {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        service_name: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        type: {
+            type: DataTypes.STRING(10),
+            allowNull: false,
+        },
+        private_key: {
+            type: DataTypes.BLOB,
+            allowNull: false,
+        },
+        public_key: {
+            type: DataTypes.BLOB,
+            allowNull: false,
+        },
+        is_trusted: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        }
     };
     const indexes = [
         {
@@ -115,6 +124,14 @@ function constructClientModel() {
         }
     ];
     return [model, indexes];
+}
+
+function _mapDefaultValue(fieldConfig) {
+    const type = fieldConfig['type'];
+    if (type === 'date' && _.get(fieldConfig, 'default') === 'now') {
+        return Sequelize.NOW;
+    }
+    return _.get(fieldConfig, 'default', EMPTY_DEFAULT[type]);
 }
 
 module.exports = {

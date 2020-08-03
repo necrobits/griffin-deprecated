@@ -1,6 +1,5 @@
-'use strict;'
+'use strict';
 const _ = require('lodash');
-const Container = require('typedi').Container;
 const loadConfigurations = require('./yaml');
 
 const reservedFields = [
@@ -13,8 +12,7 @@ const reservedFields = [
 ];
 
 class ConfigProvider {
-    constructor() {
-        const yamlFile = Container.get('yaml_config_file');
+    constructor(yamlFile) {
         const yamlConfig = loadConfigurations(yamlFile);
         const definedCustomFields = _.keys(yamlConfig['userFields']);
 
@@ -42,5 +40,6 @@ class ConfigProvider {
     get(path, defaultValue) {
         return _.get(this.config, path, defaultValue);
     }
-};
+}
+
 module.exports = ConfigProvider;

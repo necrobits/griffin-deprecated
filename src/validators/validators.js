@@ -4,16 +4,22 @@ function isEmail(string) {
 }
 
 module.exports = {
-    max_length(string, val) {
+    maxLength(string, val) {
         return string.length <= val;
     },
-    min_length(string, val) {
+    minLength(string, val) {
         return string.length >= val;
     },
-    is(string, type) {
+    isType(string, type) {
         if (type === 'email') {
             return isEmail(string);
         }
         return true;
+    },
+    after(date, val){
+        return date.getTime() >= val;
+    },
+    before(date, val){
+        return date.getTime() <= val;
     }
 };

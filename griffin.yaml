@@ -2,13 +2,13 @@ userFields:
   first_name:
     type: string
     constraints:
-      - max_length: 5
-      - min_length: 2
+      - maxLength: 5
+      - minLength: 2
   last_name:
     type: string
     constraints:
-      - max_length: 5
-      - min_length: 2
+      - maxLength: 5
+      - minLength: 2
   address:
     type: string
     optional: true
@@ -19,8 +19,17 @@ userFields:
       - after: 2002-12-14
       - before: now
 
-
+encryption:
+  keySize: 1024
+  publicKey:
+    type: spki
+  privateKey:
+    type: pkcs8
 
 sso:
   usingEmail: false
-  method: jwt
+  method: signed-jwt
+
+dashboard:
+  username: admin
+  password: admin

@@ -7,7 +7,7 @@ class UserRepository {
         this.userModel = Container.get('db.model.user');
     }
 
-    addUser(user) {
+    createUser(user) {
         return this.userModel.create(user).then(toJSON);
     }
 

@@ -10,22 +10,23 @@ const systemFieldConfigs = {
     username: {
         required: true,
         constraints: [
-            {max_length: 20},
-            {min_length: 6},
+            {maxLength: 20},
+            {minLength: 6},
         ]
     },
     email: {
         required: true,
         constraints: [
-            {max_length: 20},
-            {min_length: 6},
+            {maxLength: 20},
+            {minLength: 6},
+            {isType: 'email'}
         ]
     },
     password: {
         required: true,
         constraints: [
-            {max_length: 50},
-            {min_length: 8},
+            {maxLength: 50},
+            {minLength: 8},
         ]
     }
 };
@@ -54,12 +55,11 @@ class UserService {
 
         const passwordHash = await bcryptHash(userData.password, saltRounds);
         const user = {...userData, password: passwordHash};
-        return this.userRepo.addUser(user);
+        return this.userRepo.createUser(user);
     }
 
 
     async login(id, rawPassword) {
-        console.log("id,pass", id, rawPassword);
         let user;
         if (this.usingEmail) {
             user = await this.userRepo.findUserByEmail(id);
