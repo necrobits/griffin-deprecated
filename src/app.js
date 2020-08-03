@@ -8,8 +8,9 @@ const ClientRepository = require('./repositories/client');
 const UserService = require('./services/user');
 const AuthService = require('./services/auth');
 const AppRouter = require('./api');
+const installMissingDependencies = require('./bootstrap/install');
 
-function initializeDependencies() {
+function initializeDependencyInjection() {
     Container.set('repo.user', new UserRepository());
     Container.set('repo.client', new ClientRepository());
     Container.set('service.user', new UserService());
@@ -35,9 +36,9 @@ module.exports = async () => {
     Container.set('yaml_config_file', './griffin.yaml');
     const config = new ConfigProvider();
     Container.set('config', config);
-
+    await installMissingDependencies();
     await initializeDatabase();
-    await initializeDependencies();
+    await initializeDependencyInjection();
 
     const app = express();
     initializeExpressApp(app);

@@ -17,6 +17,7 @@ async function initializeDatabase() {
         db = new Sequelize({
             dialect: 'sqlite',
             storage: './griffin.sqlite',
+            logging: false
         });
     } else {
         db = new Sequelize(
