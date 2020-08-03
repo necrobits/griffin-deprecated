@@ -28,12 +28,12 @@ class ApiController {
 
 function applySSOResponse(res, ssoResponse) {
     if (_.has(ssoResponse, 'headers')) {
-        for (let h in _.keys(ssoResponse.headers)) {
+        for (let h of _.keys(ssoResponse.headers)) {
             res.header(h, ssoResponse.headers[h]);
         }
     }
     if (_.has(ssoResponse, 'cookies')) {
-        for (let h in _.keys(ssoResponse.cookies)) {
+        for (let h of _.keys(ssoResponse.cookies)) {
             res.cookie(h, ssoResponse.cookies[h]);
         }
     }
