@@ -6,6 +6,7 @@ const _ = require('lodash');
 class ApiController {
     constructor() {
         this.authService = Container.get('service.auth');
+        this.userService = Container.get('service.user');
         this.router = Router();
         this._setupRoutes();
     }
@@ -20,9 +21,20 @@ class ApiController {
         }
     }
 
+    async register(req, res) {
+        try {
+            const user = await this.userService.register(req.body);
+            res.status(201).json(user);
+        } catch (e) {
+            console.log("[ERROR] Message: ", e.message);
+            res.status(500).json(e);
+        }
+    }
+
 
     _setupRoutes() {
         this.router.post('/auth', this.login.bind(this));
+        this.router.post('/register', this.register.bind(this));
     }
 }
 
