@@ -3,7 +3,7 @@ const sign = require('util').promisify(jwt.sign);
 const Container = require('typedi').Container;
 const _ = require('lodash');
 
-module.exports = async (client, userProfile) => {
+module.exports = async (client, userProfile, callbackUrl) => {
     const config = Container.get('config').get('jwt');
     const token = await sign({
         ...userProfile,
@@ -12,13 +12,20 @@ module.exports = async (client, userProfile) => {
         expiresIn: _.get(config, 'expiration', 604800),
         issuer: _.get(config, 'issuer', 'griffin'),
     });
+    const callbackData = {
+        token: token
+    };
     return {
-        cookies: {
-            accessToken: token
-        },
+        // For API
         body: {
             ...userProfile,
             access_token: token,
-        }
+        },
+        // For SSO UI
+        cookies: {
+            accessToken: token
+        },
+        callbackUrl: callbackUrl,
+        callbackData: callbackData,
     }
 };

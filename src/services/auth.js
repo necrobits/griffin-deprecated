@@ -6,10 +6,7 @@ const AppError = require('../errors');
  * This is a layer above of User Service, providing data transformation functions
  */
 const supportedMethods = {
-    // Move this to an external package after having several methods
-    // For now it's not worth the effort
     'jwt': '../sso-methods/jwt',
-    'jwtcb': '../sso-methods/jwt-redirect',
 };
 
 class AuthService {
@@ -18,7 +15,7 @@ class AuthService {
         this.clientService = Container.get('service.client');
     }
 
-    async login(clientId, userId, password, method = 'jwt') {
+    async login(clientId, userId, password, method = 'jwt', redirectUrl = null) {
         if (!_.has(supportedMethods, method)) {
             throw new AppError('invalid_login_method');
         }
@@ -30,6 +27,13 @@ class AuthService {
         if (client == null) {
             throw new AppError('invalid_client');
         }
+        // allow custom redirect url, only if it's a sub-path of the registered url
+        if (redirectUrl == null) {
+            redirectUrl = client.callback_url;
+        } else if (!redirectUrl.startsWith(client.callback_url)) {
+            throw new AppError('invalid_callback_url');
+        }
+
         // verify user credentials
         if (userId == null || password == null) {
             throw new AppError('invalid_credential');
@@ -38,7 +42,7 @@ class AuthService {
 
         // decide how to respond, depending on method
         const ssoMethod = require(supportedMethods[method]);
-        return ssoMethod(client, profile);
+        return ssoMethod(client, profile, redirectUrl);
     }
 }
 

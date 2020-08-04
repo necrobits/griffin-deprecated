@@ -10,8 +10,12 @@
                 <h1 style="margin-bottom: 0px"><%= __('brand') %></h1>
                 <div style="color:#666666; font-size: .9rem"><%= __('signup_page.title') %></div>
             </div>
-
-            <form class="signin-form" method="POST" action="/api/v1/register">
+            <% if(locals.error){ %>
+                <div class="error">
+                    <%= __('error.' + error) %>
+                </div>
+            <% } %>
+            <form class="signin-form" method="POST">
                 <% userFields.forEach(function(field){ %>
                     <div class="form-field-container labeled">
                         <label class="textfield-outlined small-field w-100">
@@ -48,7 +52,7 @@
 
                 <div class="login-box_footer">
                     <%= __('signup_page.login_guide') %>
-                    <a class="sign-link" href="/sso/login" data-purpose="login">
+                    <a class="sign-link" href="<%= loginPath %>" data-purpose="login">
                         <%= __('signup_page.login_link_text') %>
                     </a>
                 </div>

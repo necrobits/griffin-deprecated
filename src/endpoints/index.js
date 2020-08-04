@@ -13,9 +13,8 @@ class ApiController {
 
     async login(req, res) {
         try {
-            console.log("Login type", req.body.type);
             const ssoResponse = await this.authService.login(req.body.client_id, req.body.username, req.body.password, req.body.type);
-            applySSOResponse(res, ssoResponse);
+            res.json(ssoResponse.body);
         } catch (e) {
             console.log("[ERROR] Message: ", e.message);
             res.status(e.statusCode()).json(e);
@@ -39,25 +38,5 @@ class ApiController {
     }
 }
 
-function applySSOResponse(res, ssoResponse) {
-    if (_.has(ssoResponse, 'headers')) {
-        for (let h of _.keys(ssoResponse.headers)) {
-            res.header(h, ssoResponse.headers[h]);
-        }
-    }
-    if (_.has(ssoResponse, 'cookies')) {
-        for (let h of _.keys(ssoResponse.cookies)) {
-            res.cookie(h, ssoResponse.cookies[h]);
-        }
-    }
-    if (_.has(ssoResponse, 'redirect')) {
-        res.redirect(ssoResponse.redirect);
-    }
-    if (_.has(ssoResponse, 'body')) {
-        res.json(ssoResponse.body);
-    } else {
-        res.end();
-    }
-}
 
 module.exports = ApiController;

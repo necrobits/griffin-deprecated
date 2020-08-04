@@ -1,3 +1,4 @@
+
 userFields:
   first_name:
     type: string
@@ -27,6 +28,8 @@ sso:
   usingEmail: false
   methods:
     - jwt
+  loginUrl: /sso/login
+  signupUrl: /sso/signup
 jwt:
   issuer: neuralgi
   expiration: 604800

@@ -20,5 +20,11 @@
     "last_name": "Họ",
     "address": "Địa chỉ",
     "date_of_birth": "Ngày sinh"
+  },
+  "error": {
+    "invalid_client": "Dịch vụ không hợp lệ",
+    "invalid_username_or_password": "Tên đăng nhập hoặc mật khẩu không đúng",
+    "invalid_credential": "Tên đăng nhập hoặc mật khẩu không đúng",
+    "invalid_login_method": "Phương thức đăng nhập không tồn tại"
   }
 }

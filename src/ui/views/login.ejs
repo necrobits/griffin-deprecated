@@ -12,7 +12,12 @@
                 <div style="color:#666666; font-size: .9rem"><%= __('login_page.title') %></div>
             </div>
 
-            <form id="form" class="signin-form">
+            <% if(locals.error){ %>
+                <div class="error">
+                    <%= __('error.' + error) %>
+                </div>
+            <% } %>
+            <form id="form" class="signin-form" method="post">
                 <div class="form-field-container labeled">
                     <label class="textfield-outlined w-100">
                         <% if(usingEmail){ %>
@@ -53,8 +58,8 @@
                         <span><%= __('field.password') %></span>
                     </label>
                 </div>
-                <input type="text" hidden name="client_id" value="<%= client_id %>">
-                <input type="text" hidden name="type" value="jwtcb">
+                <input type="text" hidden name="client_id" value="<%= clientId %>">
+                <input type="text" hidden name="type" value="jwt">
                 <div class="form-actions">
                     <div class="submit-row">
                         <button type="submit"
@@ -68,7 +73,7 @@
 
                 <div class="login-box_footer">
                     <%= __('login_page.signup_guide') %>
-                    <a class="sign-link" href="/sso/signup" data-purpose="signup">
+                    <a class="sign-link" href="<%= signupPath %>" data-purpose="signup">
                         <%= __('login_page.signup_link_text') %>
                     </a>
                 </div>
@@ -80,27 +85,6 @@
 
 </body>
 <script>
-    $("#form").on("submit", function (e) {
-        e.preventDefault();
-        const fields = $("#form").serializeArray();
-        const data = {};
-        for (let field of fields) {
-            data[field.name] = field.value;
-        }
-        $.ajax({
-            type: "POST",
-            url: `/api/v1/auth`,
-            data: data,
-            success: function (result) {
-                if (result.redirect) {
-                    window.location.href = result.redirect;
-                }
-            },
-            error: function (err) {
-                console.log("err", err);
-            }
-        });
-    });
 
 </script>
 </html>
