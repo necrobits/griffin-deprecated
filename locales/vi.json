@@ -1,0 +1,24 @@
+{
+  "brand": "Griffin",
+  "login_page": {
+    "title": "Đăng nhập",
+    "submitBtn": "Đăng nhập",
+    "signup_guide": "Chưa có tài khoản?",
+    "signup_link_text": "Đăng ký"
+  },
+  "signup_page": {
+    "title": "Đăng ký",
+    "submitBtn": "Đăng ký",
+    "login_guide": "Đã có tài khoản?",
+    "login_link_text": "Đăng nhập"
+  },
+  "field": {
+    "username": "Tên đăng nhập",
+    "email": "Địa chỉ Email",
+    "password": "Mật khẩu",
+    "first_name": "Tên",
+    "last_name": "Họ",
+    "address": "Địa chỉ",
+    "date_of_birth": "Ngày sinh"
+  }
+}

@@ -10,6 +10,27 @@ const reservedFields = [
     'created_at',
     'updated_at'
 ];
+const systemUserFields = {
+    email: {
+        constraints: {
+            maxLength: 50,
+            minLength: 6,
+        },
+        type: 'email'
+    },
+    password: {
+        constraints: {
+            maxLength: 50,
+            minLength: 8
+        },
+    }
+};
+const usernameField = {
+    constraints: {
+        maxLength: 20,
+        minLength: 6,
+    }
+};
 
 class ConfigProvider {
     constructor(yamlFile) {
@@ -19,9 +40,15 @@ class ConfigProvider {
         if (_.intersection(definedCustomFields, reservedFields).length > 0) {
             throw new Error('userFields in the config contains prohibited field name');
         }
+        let requiredUserFields = {};
+        if (!_.get(yamlConfig, 'sso.usingEmails', false)) {
+            requiredUserFields.username = usernameField;
+        }
+        requiredUserFields = {...requiredUserFields, ...systemUserFields};
 
         this.config = {
             ...yamlConfig,
+            allUserFields: {...requiredUserFields, ...yamlConfig.userFields},
             server: {
                 host: process.env.HOST || 'localhost',
                 port: process.env.PORT || 3000,

@@ -3,53 +3,25 @@ const {validateFieldValue} = require('../validators');
 const bcrypt = require('bcrypt');
 const bcryptCompare = require('util').promisify(bcrypt.compare);
 const bcryptHash = require('util').promisify(bcrypt.hash);
+const AppError = require('../errors');
 
 const _ = require('lodash');
 
-const systemFieldConfigs = {
-    username: {
-        constraints: [
-            {maxLength: 20},
-            {minLength: 6},
-        ]
-    },
-    email: {
-        constraints: [
-            {maxLength: 20},
-            {minLength: 6},
-            {isType: 'email'}
-        ]
-    },
-    password: {
-        constraints: [
-            {maxLength: 50},
-            {minLength: 8},
-        ]
-    }
-};
 const saltRounds = 10;
 
 class UserService {
     constructor() {
         this.userRepo = Container.get('repo.user');
         this.usingEmail = Container.get('config').get('sso.usingEmail');
-        this.fieldConfigs = Container.get('config').get('userFields');
-        this.customFields = _.keys(this.fieldConfigs);
-        this.systemFields = ['email', 'password'];
-        if (!this.usingEmail) {
-            this.systemFields.push('username');
-        }
+        this.fields = Container.get('config').get('allUserFields');
     }
 
     async register(rawUserData) {
-        const userData = _.pick(rawUserData, _.union(this.customFields, this.systemFields));
-        for (let f of this.customFields) {
-            validateFieldValue(f, userData[f], this.fieldConfigs[f])
-        }
-        for (let f of this.systemFields) {
-            validateFieldValue(f, userData[f], systemFieldConfigs[f]);
-        }
+        const userData = _.pick(rawUserData, _.keys(this.fields));
 
+        for (let f of _.keys(this.fields)) {
+            validateFieldValue(f, userData[f], this.fields[f])
+        }
         const passwordHash = await bcryptHash(userData.password, saltRounds);
         const user = {...userData, password: passwordHash};
         return this.userRepo.createUser(user);
@@ -64,15 +36,16 @@ class UserService {
             user = await this.userRepo.findUserByUsername(id);
         }
         if (user == null) {
-            throw new Error('unauthorized');
+            throw new AppError('invalid_username_or_password');
         }
         const passwordMatched = await bcryptCompare(rawPassword, user.password);
         if (!passwordMatched) {
-            throw new Error('unauthorized');
+            throw new AppError('invalid_username_or_password');
         }
         const {password, created_at, updated_at, ...profile} = user;
         return profile;
     }
+
 }
 
 module.exports = UserService;

@@ -1,5 +1,8 @@
 const Container = require('typedi').Container;
 const express = require('express');
+const path = require('path');
+const _ = require('lodash');
+const i18n = require('./i18n');
 
 const ConfigProvider = require('./config');
 const initializeDatabase = require('./database');
@@ -33,6 +36,49 @@ function initializeExpressApp(app) {
 
     const controller = new ApiController();
     app.use('/api/v1', controller.router);
+
+
+    app.use('/assets', express.static(path.join(__dirname, '../public')));
+    app.use(i18n);
+    const userFields = Container.get('config').get('allUserFields');
+    const usingEmail = Container.get('config').get('sso.usingEmail');
+    const userFieldsForView = [];
+    for (let f of _.keys(userFields)) {
+        const fieldConfig = userFields[f];
+        const field = {
+            key: f,
+            optional: _.get(fieldConfig, 'optional', false),
+            minLength: _.get(fieldConfig, 'constraints.minLength', 0),
+            maxLength: _.get(fieldConfig, 'constraints.maxLength', 255),
+        };
+        const type = _.get(fieldConfig, 'type', 'string');
+        if (f === 'password') {
+            field.type = 'password';
+        } else if (type === 'email') {
+            field.type = 'email';
+        } else {
+            field.type = 'text';
+        }
+        userFieldsForView.push(field);
+    }
+    app.set('views', path.join(__dirname, 'ui/views'));
+    app.set('view engine', 'ejs');
+    app.get('/sso/login', function (req, res) {
+        res.render('login', {
+            userFields: userFieldsForView,
+            usingEmail: usingEmail,
+            client_id: req.query.client_id,
+            title: `${res.__('login_page.title')} | ${res.__('brand')}`
+        })
+    });
+    app.get('/sso/signup', function (req, res) {
+        res.render('signup', {
+            userFields: userFieldsForView,
+            usingEmail: usingEmail,
+            title: `${res.__('signup_page.title')} | ${res.__('brand')}`
+
+        })
+    });
 
 }
 

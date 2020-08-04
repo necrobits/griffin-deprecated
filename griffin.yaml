@@ -2,22 +2,16 @@ userFields:
   first_name:
     type: string
     constraints:
-      - maxLength: 5
-      - minLength: 2
+      maxLength: 50
+      minLength: 2
   last_name:
     type: string
     constraints:
-      - maxLength: 5
-      - minLength: 2
+      maxLength: 20
+      minLength: 2
   address:
     type: string
     optional: true
-  date_of_birth:
-    type: date
-    optional: true
-    constraints:
-      - after: 2002-12-14
-      - before: now
 
 clientSettings:
   encryption:

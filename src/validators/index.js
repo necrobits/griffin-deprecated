@@ -1,25 +1,34 @@
 const _ = require('lodash');
 const Validators = require('./validators');
+const TypeChecker = require('./types');
+const AppError = require('../errors');
 
 function validateFieldValue(fieldName, value, fieldConfig) {
     const isOptional = _.get(fieldConfig, 'optional', false);
-    const constraints = _.get(fieldConfig, 'constraints', []);
-
+    const constraints = _.get(fieldConfig, 'constraints', {});
+    const type = _.get(fieldConfig, 'type', 'string');
     if (value == null) {
         if (!isOptional) {
-            throw new Error(`field_required: ${fieldName}`);
+            throw new AppError(`missing_required_field`, fieldName);
         }
         return true;
     }
-    for (let c of constraints) {
-        const constraintName = _.keys(c)[0].toLowerCase();
-        const constraintVal = _.values(c)[0];
+    if (!_.has(TypeChecker, type.toLowerCase()) || !TypeChecker[type](value)) {
+        throw new AppError(`invalid_value_of_type`, {type, value})
+    }
+    for (let c of _.keys(constraints)) {
+        const constraintName = c.toLowerCase();
+        const constraintVal = constraints[c];
         if (!_.has(Validators, constraintName)) {
             continue;
         }
         let valid = Validators[constraintName](value, constraintVal);
         if (!valid) {
-            throw new Error(`constraint_violation: ${constraintName} ${constraintVal}`);
+            throw new AppError(`constraint_violation`, {
+                constraint: constraintName,
+                constraintValue: constraintVal,
+                value: value
+            });
         }
     }
 }

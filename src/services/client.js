@@ -2,7 +2,7 @@ const Container = require('typedi').Container;
 const _ = require('lodash');
 const Hashids = require('hashids/cjs');
 const {validateFieldValue} = require('../validators');
-
+const AppError = require('../errors');
 const clientFieldConfigs = {
     is_trusted: {
         optional: false,
@@ -66,10 +66,10 @@ class ClientService {
     async authenticate(clientId, clientSecret) {
         const client = await this.getClientById(clientId);
         if (client == null) {
-            throw new Error('unauthorized');
+            throw new AppError('unauthorized');
         }
         if (clientSecret !== client.client_secret) {
-            throw new Error('unauthorized');
+            throw new AppError('unauthorized');
         }
         return client;
     }

@@ -1,0 +1,106 @@
+<%- include('../template/head', {title: title}) -%>
+<body>
+<div class="cover-container">
+    <div>
+        <main class="inner cover">
+            <div class="logo">
+                <img src="/assets/logo.png"/>
+            </div>
+
+            <div class="heading">
+                <h1 style="margin-bottom: 0px"><%= __('brand') %></h1>
+                <div style="color:#666666; font-size: .9rem"><%= __('login_page.title') %></div>
+            </div>
+
+            <form id="form" class="signin-form">
+                <div class="form-field-container labeled">
+                    <label class="textfield-outlined w-100">
+                        <% if(usingEmail){ %>
+                            <input id="username"
+                                   type="email"
+                                   name="username"
+                                   placeholder=" "
+                                   minlength="6"
+                                   maxlength="50"
+                                   value=""
+                                   required>
+
+                            <span><%= __('field.email') %></span>
+                        <% } else{ %>
+                            <input id="username"
+                                   name="username"
+                                   type="text"
+                                   placeholder=" "
+                                   minlength="6"
+                                   maxlength="20"
+                                   value=""
+                                   required>
+                            <span><%= __('field.username') %></span>
+                        <% } %>
+
+                    </label>
+                </div>
+                <div class="form-field-container labeled mt-2">
+                    <label class="textfield-outlined w-100">
+                        <input id="password"
+                               name="password"
+                               type="password"
+                               placeholder=" "
+                               minlength="8"
+                               maxlength="50"
+                               value=""
+                               required>
+                        <span><%= __('field.password') %></span>
+                    </label>
+                </div>
+                <input type="text" hidden name="client_id" value="<%= client_id %>">
+                <input type="text" hidden name="type" value="jwtcb">
+                <div class="form-actions">
+                    <div class="submit-row">
+                        <button type="submit"
+                                class="btn"
+                                id="submit-id-submit"
+                                data-purpose="do-login">
+                            <%= __('login_page.submitBtn') %>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-box_footer">
+                    <%= __('login_page.signup_guide') %>
+                    <a class="sign-link" href="/sso/signup" data-purpose="signup">
+                        <%= __('login_page.signup_link_text') %>
+                    </a>
+                </div>
+            </form>
+
+        </main>
+    </div>
+</div>
+
+</body>
+<script>
+    $("#form").on("submit", function (e) {
+        e.preventDefault();
+        const fields = $("#form").serializeArray();
+        const data = {};
+        for (let field of fields) {
+            data[field.name] = field.value;
+        }
+        $.ajax({
+            type: "POST",
+            url: `/api/v1/auth`,
+            data: data,
+            success: function (result) {
+                if (result.redirect) {
+                    window.location.href = result.redirect;
+                }
+            },
+            error: function (err) {
+                console.log("err", err);
+            }
+        });
+    });
+
+</script>
+</html>
