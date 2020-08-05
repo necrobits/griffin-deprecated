@@ -29,8 +29,9 @@ class PublicUIController {
             const user = await this.userService.register(req.body);
             res.status(201).json(user);
         } catch (e) {
-            console.log("[ERROR] Message: ", e.message);
-            res.status(500).json(e);
+            this.renderer.renderSignupView(res, req.body.client_id, {error: e});
+            console.log("[ERROR] Message: ", e.message, e);
+
         }
     }
 

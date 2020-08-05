@@ -18,20 +18,23 @@ function validateFieldValue(fieldName, value, fieldConfig) {
     }
 
     for (let c of _.keys(constraints)) {
-        const constraintName = c.toLowerCase();
+
+        const constraintName = c;
         const constraintVal = constraints[c];
         if (!_.has(Validators, constraintName)) {
             continue;
         }
         let valid = Validators[constraintName](value, constraintVal);
         if (!valid) {
-            throw new AppError(`constraint_violation`, {
+            new AppError(`constraint_violation`, {
+                field: fieldName,
                 constraint: constraintName,
                 constraintValue: constraintVal,
                 value: value
             });
         }
     }
+
 }
 
 module.exports = {

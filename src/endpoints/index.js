@@ -26,19 +26,31 @@ class ApiController {
             const user = await this.userService.register(req.body);
             res.status(201).json(user);
         } catch (e) {
-            console.log("[ERROR] Message: ", e);
+            console.log("[ERROR] Message: ", e.error);
             res.status(e.statusCode()).json(e);
         }
     }
 
-    async usernameCheck(req,res){
-        const exist = await this.userService.doesUsernameAlreadyExist(req.query.n);
-        res.status(200).json({ok: !exist});
+    async usernameCheck(req, res) {
+        try {
+            const exist = await this.userService.doesUsernameAlreadyExist(req.query.username);
+            res.status(200).json({exist});
+        } catch (e) {
+            console.log("[ERROR] Message: ", e.error);
+            res.status(e.statusCode()).json(e);
+        }
+
     }
 
-    async emailCheck(req,res){
-        const exist = await this.userService.doesEmailAlreadyExist(req.query.n);
-        res.status(200).json({ok: !exist});
+    async emailCheck(req, res) {
+        try {
+            const exist = await this.userService.doesEmailAlreadyExist(req.query.email);
+            res.status(200).json({exist});
+        } catch (e) {
+            console.log("[ERROR] Message: ", e.error);
+            res.status(e.statusCode()).json(e);
+        }
+
     }
 
 

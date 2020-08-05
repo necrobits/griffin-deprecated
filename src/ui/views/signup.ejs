@@ -6,16 +6,19 @@
             <div class="logo">
                 <img src="/assets/logo.png"/>
             </div>
+
             <div class="heading">
                 <h1 style="margin-bottom: 0px"><%= __('brand') %></h1>
                 <div style="color:#666666; font-size: .9rem"><%= __('signup_page.title') %></div>
             </div>
+
             <% if(locals.error){ %>
                 <div class="submit-error">
-                    <%= __('error.' + error) %>
+                    <%= __('error.' + error.error, {field: __('field.' + error.args.field)}) %>
                 </div>
             <% } %>
-            <form id="form" class="signin-form" method="POST">
+
+            <form id="form" class="signup-form" method="post">
                 <% userFields.forEach(function(field){ %>
                     <div class="form-field-container labeled">
                         <label class="textfield-outlined small-field w-100">
@@ -26,9 +29,28 @@
                                    placeholder=" "
                                    minlength="<%= field.minLength %>"
                                    maxlength="<%= field.maxLength %>"
+                                   data-rule-<%= field.type %>="true"
+                                   data-msg-email="<%= __('field_constraint.email') %>"
+                                   data-rule-minlength="<%= field.minLength %>"
+                                   data-rule-maxlength="<%= field.maxLength %>"
+                                   data-msg-minlength="<%= __('field_constraint.minlength', {
+                                       field: __('field.' + field.key),
+                                       value: field.minLength
+                                   }) %>"
+                                   data-msg-maxlength="<%= __('field_constraint.maxlength', {
+                                       field: __('field.' + field.key),
+                                       value: field.maxLength
+                                   }) %>"
+                                   data-msg-remote="<%= __('error.field_exists', {field: "{0}"}) %>"
                             <% if(!field.optional){ %>
                                    required
+                                   data-rule-required="true"
+                                   data-msg-required="<%= __('field_constraint.required', {field: __('field.' + field.key)}) %>"
                                    value=""
+                                    <% } %>
+                            <% if(field.pattern){ %>
+                                   data-rule-<%= field.key %>-pattern="true"
+                                   data-msg-<%= field.key %>-pattern="<%= __('error_pattern.' + field.key) %>"
                                     <% } %>
                             >
 
@@ -46,8 +68,20 @@
                                        placeholder=" "
                                        minlength="<%= field.minLength %>"
                                        maxlength="<%= field.maxLength %>"
-                                       equalTo=""
                                        required
+
+                                       data-rule-minlength="<%= field.minLength %>"
+                                       data-rule-maxlength="<%= field.maxLength %>"
+                                       data-msg-minlength="<%= __('field_constraint.minlength', {
+                                           field: __('field.' + field.key),
+                                           value: field.minLength
+                                       }) %>"
+                                       data-msg-maxlength="<%= __('field_constraint.maxlength', {
+                                           field: __('field.' + field.key),
+                                           value: field.maxLength
+                                       }) %>"
+                                       data-rule-required="true"
+                                       data-msg-required="<%= __('field_constraint.required', {field: __('field.password_repeat')}) %>"
                                 >
                                 <span><%= __('field.password_repeat') %></span>
 
@@ -83,60 +117,57 @@
 </body>
 <script>
     const userFields = <%- JSON.stringify(userFields) %>;
-    const fieldConstraints = {};
-    i18next.init({
-        lng: 'en',
-        debug: true,
-        resources: {
-            en: {
-                translation: <%- JSON.stringify(getCatalog()) %>
-            }
-        }
-    })
 
-    jQuery.extend(jQuery.validator.messages, {
-        required: i18next.t('field_constraint.required'),
-        email: i18next.t('field_constraint.email'),
-        equalTo: i18next.t('field_constraint.equalto'),
-    });
-    const translatedErrorMsgs = {};
-    const paramConstraints = ['minLength', 'maxLength'];
     for (let field of userFields) {
-        const fieldName = i18next.t('field.' + field.key);
-        const translatedConstraints = {};
-        console.log(field)
-        for (let c of paramConstraints) {
-            if (field[c]) {
-                translatedConstraints[c.toLowerCase()] = i18next.t('field_constraint.' + c.toLowerCase(), {
-                    field: fieldName,
-                    value: field[c]
-                });
-            }
+        if (field.hasOwnProperty('pattern')) {
+            $.validator.addMethod(field.key + '-pattern', function (value, element) {
+                return new RegExp(field.pattern, 'gi').test(value)
+            });
         }
-        translatedErrorMsgs[field.key] = translatedConstraints;
     }
 
-    const validator = $('#form').validate({
-        messages: translatedErrorMsgs,
+
+    $('#form').validate({
+        onkeyup: false,
+        focusCleanup: true,
         errorPlacement: function (err, element) {
             element.parent().append(err);
         },
         rules: {
-            password_repeat:{
+            username: {
+                remote: {
+                    url: `/api/v1/usernamecheck`,
+                    type: "get",
+                    data: {
+                        username: function () {
+                            return $("#username").val();
+                        }
+                    },
+                    dataFilter: function (res) {
+                        const data = JSON.parse(res);
+                        return !data.exist
+                    }
+                },
+            },
+            email: {
+                remote: {
+                    url: `/api/v1/emailcheck`,
+                    type: "get",
+                    data: {
+                        email: function () {
+                            return $("#email").val();
+                        }
+                    },
+                    dataFilter: function (res) {
+                        const data = JSON.parse(res);
+                        return !data.exist
+                    }
+                },
+            },
+            password_repeat: {
                 equalTo: '#password'
             }
         }
     });
-    $("#username").focusout(function () {
-        console.log("focusout");
-        const username = $("#username").val();
-        if (username.length < 6) return;
-        $.ajax('/api/v1/usernamecheck?n=' + username, {
-            dataType: 'JSON',
-            success: function (result) {
-                console.log(result)
-            }
-        })
-    })
 </script>
 </html>

@@ -10,6 +10,8 @@ const ErrorToStatusCode = {
     'invalid_value_of_type': 400,
     'constraint_violation': 400,
     'unique_field_exists': 409,
+    'invalid_email': 400,
+    'invalid_username': 400,
 };
 
 class AppError extends Error {

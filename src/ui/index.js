@@ -23,7 +23,7 @@ function initializeUI(app, config = defaultConfig) {
     return {
         renderLoginView(res, clientId, extra = {}) {
             res.render('login', {
-                userFields: userFieldsForView,
+                userFields: userFieldsForView.filter(field => (field.key === 'email' && usingEmail) || (field.key === 'username' && !usingEmail) || field.key === 'password'),
                 usingEmail: usingEmail,
                 signupPath: `${config.signupPath}?client_id=${clientId}`,
                 loginPath: `${config.loginPath}?client_id=${clientId}`,
@@ -57,6 +57,10 @@ function fieldViewsFromConfig(userFields) {
             minLength: _.get(fieldConfig, 'constraints.minLength', 0),
             maxLength: _.get(fieldConfig, 'constraints.maxLength', 255),
         };
+        const regexMatch = _.get(fieldConfig, 'constraints.regexMatch');
+        if (regexMatch) {
+            field.pattern = regexMatch;
+        }
         const type = _.get(fieldConfig, 'type', 'string');
         if (f === 'password') {
             field.type = 'password';

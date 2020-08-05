@@ -17,47 +17,50 @@
                     <%= __('error.' + error) %>
                 </div>
             <% } %>
+
             <form id="form" class="signin-form" method="post">
-                <div class="form-field-container labeled">
-                    <label class="textfield-outlined w-100">
-                        <% if(usingEmail){ %>
-                            <input id="username"
-                                   type="email"
-                                   name="username"
-                                   placeholder=" "
-                                   minlength="6"
-                                   maxlength="50"
-                                   value=""
-                                   required>
+                <% userFields.forEach(function(field){ %>
+                    <div class="form-field-container labeled">
+                        <label class="textfield-outlined small-field w-100">
 
-                            <span><%= __('field.email') %></span>
-                        <% } else{ %>
-                            <input id="username"
+                            <input id="<%= field.key %>"
+                            <% if(field.key === "password"){ %>
+                                   name="password"
+                            <% } else{ %>
                                    name="username"
-                                   type="text"
+                                    <% } %>
+                                   type="<%= field.type %>"
                                    placeholder=" "
-                                   minlength="6"
-                                   maxlength="20"
+                                   minlength="<%= field.minLength %>"
+                                   maxlength="<%= field.maxLength %>"
+                                   data-rule-<%= field.type %>="true"
+                                   data-msg-email="<%= __('field_constraint.email') %>"
+                                   data-rule-minlength="<%= field.minLength %>"
+                                   data-rule-maxlength="<%= field.maxLength %>"
+                                   data-msg-minlength="<%= __('field_constraint.minlength', {
+                                       field: __('field.' + field.key),
+                                       value: field.minLength
+                                   }) %>"
+                                   data-msg-maxlength="<%= __('field_constraint.maxlength', {
+                                       field: __('field.' + field.key),
+                                       value: field.maxLength
+                                   }) %>"
+                                   required
+                                   data-rule-required="true"
+                                   data-msg-required="<%= __('field_constraint.required', {field: __('field.' + field.key)}) %>"
                                    value=""
-                                   required>
-                            <span><%= __('field.username') %></span>
-                        <% } %>
+                            <% if(field.pattern){ %>
+                                   data-rule-<%= field.key %>-pattern="true"
+                                   data-msg-<%= field.key %>-pattern="<%= __('error_pattern.' + field.key) %>"
+                                    <% } %>
+                            >
 
-                    </label>
-                </div>
-                <div class="form-field-container labeled mt-2">
-                    <label class="textfield-outlined w-100">
-                        <input id="password"
-                               name="password"
-                               type="password"
-                               placeholder=" "
-                               minlength="8"
-                               maxlength="50"
-                               value=""
-                               required>
-                        <span><%= __('field.password') %></span>
-                    </label>
-                </div>
+                            <span><%= __('field.' + field.key) %></span>
+
+                        </label>
+                    </div>
+
+                <% }); %>
                 <input type="text" hidden name="client_id" value="<%= clientId %>">
                 <input type="text" hidden name="type" value="jwt">
                 <div class="form-actions">
@@ -85,6 +88,23 @@
 
 </body>
 <script>
+
+    const userFields = <%- JSON.stringify(userFields) %>;
+
+    for (let field of userFields) {
+        if (field.hasOwnProperty('pattern')) {
+            $.validator.addMethod(field.key + '-pattern', function (value, element) {
+                return new RegExp(field.pattern, 'gi').test(value)
+            });
+        }
+    }
+
+    $('#form').validate({
+        focusCleanup: true,
+        errorPlacement: function (err, element) {
+            element.parent().append(err);
+        }
+    });
 
 </script>
 </html>

@@ -1,39 +1,50 @@
 {
-  "brand": "Griffin",
-  "login_page": {
-    "title": "Sign in",
-    "submitBtn": "Sign in",
-    "signup_guide": "Don't have an account?",
-    "signup_link_text": "Sign up"
-  },
-  "signup_page": {
-    "title": "Registration",
-    "submitBtn": "Sign up",
-    "login_guide": "Already have an account?",
-    "login_link_text": "Sign in"
-  },
-  "field": {
-    "username": "Username",
-    "email": "Email address",
-    "password": "Password",
-    "first_name": "First name",
-    "last_name": "Last name",
-    "address": "Address",
-    "date_of_birth": "Birthday",
-    "password_repeat": "Repeat password"
-  },
-  "field_constraint": {
-    "minlength": "{{field}} must contain at least {{value}} characters",
-    "maxlength": "{{field}} must contain maximum {{value}} characters",
-    "required": "{{field}} is required",
-    "email": "This must be a valid email address",
-    "equalto": "Please enter the same value again"
-  },
-  "error": {
-    "invalid_client": "Client is not valid",
-    "invalid_credential": "Invalid username or password",
-    "invalid_login_method": "Login method is not valid",
-    "invalid_username_or_password": "Wrong username or password",
-    "invalid_field": "Please check this field again"
-  }
+	"brand": "Griffin",
+	"login_page": {
+		"title": "Sign in",
+		"submitBtn": "Sign in",
+		"signup_guide": "Don't have an account?",
+		"signup_link_text": "Sign up"
+	},
+	"signup_page": {
+		"title": "Registration",
+		"submitBtn": "Sign up",
+		"login_guide": "Already have an account?",
+		"login_link_text": "Sign in"
+	},
+	"field": {
+		"username": "Username",
+		"email": "Email address",
+		"password": "Password",
+		"first_name": "First name",
+		"last_name": "Last name",
+		"address": "Address",
+		"date_of_birth": "Birthday",
+		"password_repeat": "Repeat password"
+	},
+	"field_constraint": {
+		"minlength": "{{field}} must contain at least {{value}} characters",
+		"maxlength": "{{field}} must contain maximum {{value}} characters",
+		"required": "{{field}} is required",
+		"email": "This must be a valid email address",
+		"equalto": "Please enter the same value again"
+	},
+	"error_pattern": {
+		"username": "Username contains only alphabets, digits or ._",
+		"password": "Password must contains at least one letter, one number and one special characters #?!@$%^&*-_\"{}()",
+		"first_name": "error_pattern.first_name",
+		"last_name": "error_pattern.last_name",
+		"address": "error_pattern.address",
+		"email": "This must be a valid email address",
+		"password_repeat": "Password must contains at least one letter, one number and one special characters #?!@$%^&*-_\"{}()"
+	},
+	"error": {
+		"invalid_client": "Client is not valid",
+		"invalid_credential": "Invalid username or password",
+		"invalid_login_method": "Login method is not valid",
+		"invalid_username_or_password": "Wrong username or password",
+		"invalid_field": "Please check this field again",
+		"unique_field_exists": "{{field}} has already existed",
+		"field_exists": "\"{{field}}\" has already taken. Please try another"
+	}
 }

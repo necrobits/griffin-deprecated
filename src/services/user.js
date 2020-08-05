@@ -4,8 +4,9 @@ const bcrypt = require('bcrypt');
 const bcryptCompare = require('util').promisify(bcrypt.compare);
 const bcryptHash = require('util').promisify(bcrypt.hash);
 const AppError = require('../errors');
-
 const _ = require('lodash');
+const TypeChecker = require('../validators/types');
+const Validators = require('../validators/validators');
 
 const saltRounds = 10;
 
@@ -18,7 +19,6 @@ class UserService {
 
     async register(rawUserData) {
         const userData = _.pick(rawUserData, _.keys(this.fields));
-        console.log('this.fields', this.fields)
         for (let f of _.keys(this.fields)) {
             validateFieldValue(f, userData[f], this.fields[f])
         }
@@ -55,10 +55,16 @@ class UserService {
     }
 
     doesUsernameAlreadyExist(username) {
+        if (!Validators.regexMatch(username, this.fields.username.constraints.regexMatch)) {
+            throw  new AppError(('invalid_username'));
+        }
         return this.userRepo.findUserByUsername(username).then(r => r != null);
     }
 
     doesEmailAlreadyExist(email) {
+        if (!TypeChecker.email(email)) {
+            throw new AppError('invalid_email');
+        }
         return this.userRepo.findUserByEmail(email).then(r => r != null);
     }
 
