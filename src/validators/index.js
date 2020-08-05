@@ -16,6 +16,7 @@ function validateFieldValue(fieldName, value, fieldConfig) {
     if (!_.has(TypeChecker, type.toLowerCase()) || !TypeChecker[type](value)) {
         throw new AppError(`invalid_value_of_type`, {type, value})
     }
+
     for (let c of _.keys(constraints)) {
         const constraintName = c.toLowerCase();
         const constraintVal = constraints[c];

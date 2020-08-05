@@ -101,11 +101,15 @@ footer > .inner {
     margin-top: 0;
 }
 
-.error {
+.submit-error {
     font-weight: bold;
     color: #e24a3b;
     text-align: center;
     display: block;
+}
+label.error {
+    font-size: .7rem;
+    color:#e24a3b;
 }
 
 .fields-wrapper {

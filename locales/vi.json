@@ -1,30 +1,31 @@
 {
-  "brand": "Griffin",
-  "login_page": {
-    "title": "Đăng nhập",
-    "submitBtn": "Đăng nhập",
-    "signup_guide": "Chưa có tài khoản?",
-    "signup_link_text": "Đăng ký"
-  },
-  "signup_page": {
-    "title": "Đăng ký",
-    "submitBtn": "Đăng ký",
-    "login_guide": "Đã có tài khoản?",
-    "login_link_text": "Đăng nhập"
-  },
-  "field": {
-    "username": "Tên đăng nhập",
-    "email": "Địa chỉ Email",
-    "password": "Mật khẩu",
-    "first_name": "Tên",
-    "last_name": "Họ",
-    "address": "Địa chỉ",
-    "date_of_birth": "Ngày sinh"
-  },
-  "error": {
-    "invalid_client": "Dịch vụ không hợp lệ",
-    "invalid_username_or_password": "Tên đăng nhập hoặc mật khẩu không đúng",
-    "invalid_credential": "Tên đăng nhập hoặc mật khẩu không đúng",
-    "invalid_login_method": "Phương thức đăng nhập không tồn tại"
-  }
+	"brand": "Griffin",
+	"login_page": {
+		"title": "Đăng nhập",
+		"submitBtn": "Đăng nhập",
+		"signup_guide": "Chưa có tài khoản?",
+		"signup_link_text": "Đăng ký"
+	},
+	"signup_page": {
+		"title": "Đăng ký",
+		"submitBtn": "Đăng ký",
+		"login_guide": "Đã có tài khoản?",
+		"login_link_text": "Đăng nhập"
+	},
+	"field": {
+		"username": "Tên đăng nhập",
+		"email": "Địa chỉ Email",
+		"password": "Mật khẩu",
+		"first_name": "Tên",
+		"last_name": "Họ",
+		"address": "Địa chỉ",
+		"date_of_birth": "Ngày sinh"
+	},
+	"error": {
+		"invalid_client": "Dịch vụ không hợp lệ",
+		"invalid_username_or_password": "Tên đăng nhập hoặc mật khẩu không đúng",
+		"invalid_credential": "Tên đăng nhập hoặc mật khẩu không đúng",
+		"invalid_login_method": "Phương thức đăng nhập không tồn tại",
+		"invalid_field": "error.invalid_field"
+	}
 }

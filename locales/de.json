@@ -1,0 +1,27 @@
+{
+	"brand": "Griffin",
+	"login_page": {
+		"title": "Einloggen",
+		"submitBtn": "Einloggen",
+		"signup_guide": "Du hast noch kein Konto?",
+		"signup_link_text": "Registrieren"
+	},
+	"signup_page": {
+		"title": "Registrieren",
+		"submitBtn": "Registrieren",
+		"login_guide": "Hast du bereits ein Konto?",
+		"login_link_text": "Einloggen"
+	},
+	"field": {
+		"username": "Nutzername",
+		"email": "E-Mail",
+		"password": "Passwort",
+		"first_name": "Vorname",
+		"last_name": "Nachname",
+		"address": "Adresse",
+		"date_of_birth": "Geburtsdatum"
+	},
+	"error": {
+		"invalid_field": "error.invalid_field"
+	}
+}

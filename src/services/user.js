@@ -18,15 +18,23 @@ class UserService {
 
     async register(rawUserData) {
         const userData = _.pick(rawUserData, _.keys(this.fields));
-
+        console.log('this.fields', this.fields)
         for (let f of _.keys(this.fields)) {
             validateFieldValue(f, userData[f], this.fields[f])
         }
         const passwordHash = await bcryptHash(userData.password, saltRounds);
         const user = {...userData, password: passwordHash};
-        return this.userRepo.createUser(user);
-    }
+        try {
+            return await this.userRepo.createUser(user);
+        } catch (e) {
+            if (e.hasOwnProperty('errors') && e.hasOwnProperty('fields')) {
+                throw new AppError('unique_field_exists', {field: e.fields[0], value: user[e.fields[0]]})
+            } else {
+                throw e;
+            }
+        }
 
+    }
 
     async login(id, rawPassword) {
         let user;
@@ -44,6 +52,14 @@ class UserService {
         }
         const {password, created_at, updated_at, ...profile} = user;
         return profile;
+    }
+
+    doesUsernameAlreadyExist(username) {
+        return this.userRepo.findUserByUsername(username).then(r => r != null);
+    }
+
+    doesEmailAlreadyExist(email) {
+        return this.userRepo.findUserByEmail(email).then(r => r != null);
     }
 
 }

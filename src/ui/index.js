@@ -33,6 +33,7 @@ function initializeUI(app, config = defaultConfig) {
             })
         },
         renderSignupView(res, clientId, extra = {}) {
+
             res.render('signup', {
                 userFields: userFieldsForView,
                 usingEmail: usingEmail,

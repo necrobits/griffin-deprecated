@@ -9,6 +9,7 @@ const ErrorToStatusCode = {
     'missing_required_field': 400,
     'invalid_value_of_type': 400,
     'constraint_violation': 400,
+    'unique_field_exists': 409,
 };
 
 class AppError extends Error {

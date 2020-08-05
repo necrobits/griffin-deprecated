@@ -11,11 +11,11 @@
                 <div style="color:#666666; font-size: .9rem"><%= __('signup_page.title') %></div>
             </div>
             <% if(locals.error){ %>
-                <div class="error">
+                <div class="submit-error">
                     <%= __('error.' + error) %>
                 </div>
             <% } %>
-            <form class="signin-form" method="POST">
+            <form id="form" class="signin-form" method="POST">
                 <% userFields.forEach(function(field){ %>
                     <div class="form-field-container labeled">
                         <label class="textfield-outlined small-field w-100">
@@ -36,6 +36,24 @@
 
                         </label>
                     </div>
+                    <% if (field.key === 'password'){ %>
+                        <div class="form-field-container labeled">
+                            <label class="textfield-outlined small-field w-100">
+
+                                <input id="password_repeat"
+                                       name="password_repeat"
+                                       type="password"
+                                       placeholder=" "
+                                       minlength="<%= field.minLength %>"
+                                       maxlength="<%= field.maxLength %>"
+                                       equalTo=""
+                                       required
+                                >
+                                <span><%= __('field.password_repeat') %></span>
+
+                            </label>
+                        </div>
+                    <% } %>
                 <% }); %>
 
                 <div class="form-actions">
@@ -64,6 +82,61 @@
 
 </body>
 <script>
+    const userFields = <%- JSON.stringify(userFields) %>;
+    const fieldConstraints = {};
+    i18next.init({
+        lng: 'en',
+        debug: true,
+        resources: {
+            en: {
+                translation: <%- JSON.stringify(getCatalog()) %>
+            }
+        }
+    })
 
+    jQuery.extend(jQuery.validator.messages, {
+        required: i18next.t('field_constraint.required'),
+        email: i18next.t('field_constraint.email'),
+        equalTo: i18next.t('field_constraint.equalto'),
+    });
+    const translatedErrorMsgs = {};
+    const paramConstraints = ['minLength', 'maxLength'];
+    for (let field of userFields) {
+        const fieldName = i18next.t('field.' + field.key);
+        const translatedConstraints = {};
+        console.log(field)
+        for (let c of paramConstraints) {
+            if (field[c]) {
+                translatedConstraints[c.toLowerCase()] = i18next.t('field_constraint.' + c.toLowerCase(), {
+                    field: fieldName,
+                    value: field[c]
+                });
+            }
+        }
+        translatedErrorMsgs[field.key] = translatedConstraints;
+    }
+
+    const validator = $('#form').validate({
+        messages: translatedErrorMsgs,
+        errorPlacement: function (err, element) {
+            element.parent().append(err);
+        },
+        rules: {
+            password_repeat:{
+                equalTo: '#password'
+            }
+        }
+    });
+    $("#username").focusout(function () {
+        console.log("focusout");
+        const username = $("#username").val();
+        if (username.length < 6) return;
+        $.ajax('/api/v1/usernamecheck?n=' + username, {
+            dataType: 'JSON',
+            success: function (result) {
+                console.log(result)
+            }
+        })
+    })
 </script>
 </html>
