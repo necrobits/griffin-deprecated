@@ -1,0 +1,28 @@
+<%- include('../template/head', {title: title}) -%>
+<body>
+<div class="cover-container">
+    <div>
+        <main class="inner cover">
+            <div class="logo">
+                <img src="/assets/logo.png"/>
+            </div>
+
+            <div class="heading">
+                <h1 style="margin-bottom: 0px"><%= __('brand') %></h1>
+                <div style="color:#666666; font-size: .9rem"><%= __('error_title') %></div>
+            </div>
+
+            <% if(locals.error){ %>
+                <div class="submit-error" style="margin-top: 50px">
+                    <%= __('error.' + error) %>
+                </div>
+            <% } %>
+        </main>
+    </div>
+</div>
+
+</body>
+<script>
+
+</script>
+</html>

@@ -1,5 +1,3 @@
-
-
 module.exports = {
     maxLength(string, val) {
         return string.length <= val;
@@ -16,6 +14,7 @@ module.exports = {
     },
     regexMatch(string, regex) {
         const re = new RegExp(regex);
+        console.log("regexMatch", re.test(string));
         return re.test(string);
     }
 };

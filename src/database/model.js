@@ -107,6 +107,10 @@ function constructClientModel() {
             type: DataTypes.BLOB,
             allowNull: false,
         },
+        app_url: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
         callback_url: {
             type: DataTypes.STRING,
             allowNull: true,

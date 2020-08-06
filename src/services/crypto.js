@@ -15,7 +15,7 @@ const defaultEncryptionConfig = {
 
 class CryptoService {
     constructor() {
-        this.config = _.merge(defaultEncryptionConfig, Container.get('config').get('clientSettings.encryption'));
+        this.config = _.merge(defaultEncryptionConfig, Container.get('config').get('sso.encryption'));
         this.keyPairSettings = {
             modulusLength: this.config.keySize,
             publicKeyEncoding: {

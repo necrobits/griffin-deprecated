@@ -5,7 +5,7 @@ function seedUsers() {
         'first_name': 'Andy',
         'last_name': 'Tran',
         'username': 'andytran11996',
-        'password': '123123123',
+        'password': 'ABC123@@@',
         'email': 'andytester@gmail.com'
     });
 }
@@ -14,6 +14,7 @@ async function seedClients() {
     const client = await Container.get('service.client').register({
         'service_name': 'TestApp',
         'is_trusted': true,
+        'domain': 'http://localhost:3000',
         'callback_url': 'http://localhost:3000/testcallback'
     });
     console.log("client added", client);

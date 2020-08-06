@@ -31,6 +31,19 @@ class ApiController {
         }
     }
 
+    async exchangeAccessToken(req, res) {
+
+    }
+
+    async refreshToken(req, res) {
+
+    }
+
+    async logout(req, res) {
+        res.cookie('token', '');
+        res.status(200).end();
+    }
+
     async usernameCheck(req, res) {
         try {
             const exist = await this.userService.doesUsernameAlreadyExist(req.query.username);
@@ -42,6 +55,7 @@ class ApiController {
 
     }
 
+
     async emailCheck(req, res) {
         try {
             const exist = await this.userService.doesEmailAlreadyExist(req.query.email);
@@ -50,13 +64,13 @@ class ApiController {
             console.log("[ERROR] Message: ", e.error);
             res.status(e.statusCode()).json(e);
         }
-
     }
 
 
     _setupRoutes() {
         this.router.post('/auth', this.login.bind(this));
         this.router.post('/register', this.register.bind(this));
+        this.router.post('/logout', this.logout.bind(this));
         this.router.get('/usernamecheck', this.usernameCheck.bind(this));
         this.router.get('/emailcheck', this.emailCheck.bind(this));
     }

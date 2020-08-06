@@ -1,0 +1,25 @@
+<%- include('../template/head', {title: title}) -%>
+<body>
+<div class="cover-container">
+    <div>
+        <main class="inner cover">
+            <div class="logo">
+                <img src="/assets/logo.png"/>
+            </div>
+
+            <div style="margin-top: 50px; display:block; text-align: center;">
+                <%= __('logout_success') %>
+            </div>
+        </main>
+    </div>
+</div>
+
+</body>
+<script>
+    if (window.opener) {
+        window.opener.postMessage("griffin.sso.unauthenticated", 'http://localhost:63342');
+    } else if (window.parent) {
+        window.parent.postMessage("griffin.sso.unauthenticated", 'http://localhost:63342');
+    }
+</script>
+</html>

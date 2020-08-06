@@ -18,7 +18,7 @@ function initializeUI(app, config = defaultConfig) {
     app.set('view engine', 'ejs');
 
     const userFields = Container.get('config').get('allUserFields');
-    const usingEmail = Container.get('config').get('sso.usingEmail');
+    const usingEmail = Container.get('config').get('user.disableUsername');
     const userFieldsForView = fieldViewsFromConfig(userFields);
     return {
         renderLoginView(res, clientId, extra = {}) {
@@ -33,7 +33,6 @@ function initializeUI(app, config = defaultConfig) {
             })
         },
         renderSignupView(res, clientId, extra = {}) {
-
             res.render('signup', {
                 userFields: userFieldsForView,
                 usingEmail: usingEmail,
@@ -43,6 +42,24 @@ function initializeUI(app, config = defaultConfig) {
                 clientId: clientId,
                 ...extra,
             })
+        },
+        renderErrorView(res, error) {
+            res.render('error', {
+                error,
+                title: `${res.__('error_title')} | ${res.__('brand')}`,
+            });
+        },
+        renderLogoutView(res, error) {
+            res.render('logout', {
+                error,
+                title: `${res.__('brand')}`,
+            });
+        },
+        renderSuccessView(res, token) {
+            res.render('success', {
+                token: token,
+                title: `${res.__('brand')}`,
+            });
         }
     };
 }

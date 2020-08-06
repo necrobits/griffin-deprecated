@@ -13,6 +13,12 @@ const clientFieldConfigs = {
             {maxLength: 30},
         ]
     },
+    app_url: {
+        optional: false,
+        constraints: [
+            {regexMatch: 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)'},
+        ]
+    },
     callback_url: {
         optional: true,
         constraints: [
@@ -20,26 +26,21 @@ const clientFieldConfigs = {
         ]
     }
 };
-const clientIdAlphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const clientIdMinLength = 10;
-const clientSecretAlphabet = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=-_/';
-const clientSecretMinLength = 30;
 
 class ClientService {
     constructor() {
         this.clientRepo = Container.get('repo.client');
         this.cryptoService = Container.get('service.crypto');
-        const idSalt = Container.get('config').get('clientSettings.clientIdSalt');
-        const secretSalt = Container.get('config').get('clientSettings.clientSecretSalt');
+        const clientConfig = Container.get('config').get('sso.client');
         this.idHasher = new Hashids(
-            idSalt,
-            clientIdMinLength,
-            clientIdAlphabet,
+            clientConfig.id.salt,
+            clientConfig.id.minLength,
+            clientConfig.id.alphabet,
         );
         this.secretHasher = new Hashids(
-            secretSalt,
-            clientSecretMinLength,
-            clientSecretAlphabet
+            clientConfig.secret.salt,
+            clientConfig.secret.minLength,
+            clientConfig.secret.alphabet,
         );
     }
 
@@ -58,6 +59,7 @@ class ClientService {
             public_key: publicKey,
             is_trusted: clientData.is_trusted,
             service_name: clientData.service_name,
+            app_url: clientData.app_url,
             callback_url: clientData.callback_url,
         };
         return this.clientRepo.createClient(newClient);

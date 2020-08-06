@@ -1,7 +1,15 @@
 /*
  * Globals
  */
+body::-webkit-scrollbar {
+    display: none;
+}
 
+/* Hide scrollbar for IE, Edge and Firefox */
+body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
 /* Links */
 a {
     color: #007791;
@@ -69,6 +77,7 @@ main {
     overflow: hidden;
     padding: 30px 55px 20px 55px;
     width: 300px;
+    min-height: 400px;
     margin: 20px auto;
     box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);
     -moz-box-shadow: 0 5px 10px 0px rgba(0, 0, 0, 0.1);

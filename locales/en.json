@@ -46,5 +46,8 @@
 		"invalid_field": "Please check this field again",
 		"unique_field_exists": "{{field}} has already existed",
 		"field_exists": "\"{{field}}\" has already taken. Please try another"
-	}
+	},
+	"login_success": "login_success",
+	"error_title": "error_title",
+	"logout_success": "logout_success"
 }

@@ -1,4 +1,4 @@
-<%- include('../template/head', {title: title}) -%>
+<%- include('../template/head', {title: title}) %>
 <body>
 <div class="cover-container">
     <div>
@@ -88,6 +88,11 @@
 
 </body>
 <script>
+    if (window.opener) {
+        window.opener.postMessage("griffin.sso.unauthenticated", "<%= clientAppUrl %>");
+    } else if (window.parent) {
+        window.parent.postMessage("griffin.sso.unauthenticated", "<%= clientAppUrl %>");
+    }
 
     const userFields = <%- JSON.stringify(userFields) %>;
 

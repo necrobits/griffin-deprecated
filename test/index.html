@@ -1,0 +1,57 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="The HTML5 Herald">
+    <meta name="author" content="SitePoint">
+
+    <script src="sdk.js"></script>
+</head>
+
+<body>
+Hello this is main page
+<button onclick="login()" id="loginBtn">Login</button>
+<button onclick="logout()" id="logoutBtn" hidden>Logout</button>
+<div id="loginState"></div>
+<div id="griffin-init"></div>
+<script>
+    Griffin.init({
+        appId: 'gXnWvND1Ae'
+    });
+    Griffin.getLoginStatus(function (profile, token) {
+        if (profile) {
+            griffinCallbackSuccess(profile)
+        } else {
+            griffinCallbackFailed();
+        }
+    });
+
+    function griffinCallbackFailed() {
+        document.getElementById("loginState").innerText = '';
+        document.getElementById("loginBtn").hidden = false;
+        document.getElementById("logoutBtn").hidden = true;
+    }
+
+    function griffinCallbackSuccess(profile) {
+        document.getElementById("loginBtn").hidden = true;
+        document.getElementById("logoutBtn").hidden = false;
+        document.getElementById("loginState").innerText = JSON.stringify(profile);
+    }
+
+    function login() {
+        Griffin.login(function (profile) {
+            console.log("LOGIN SUCCESS");
+            griffinCallbackSuccess(profile);
+        });
+    }
+
+    function logout() {
+        Griffin.logout(griffinCallbackFailed);
+    }
+
+</script>
+</body>
+</html>

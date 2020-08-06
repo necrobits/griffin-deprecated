@@ -13,7 +13,7 @@ const saltRounds = 10;
 class UserService {
     constructor() {
         this.userRepo = Container.get('repo.user');
-        this.usingEmail = Container.get('config').get('sso.usingEmail');
+        this.usingEmail = Container.get('config').get('user.');
         this.fields = Container.get('config').get('allUserFields');
     }
 

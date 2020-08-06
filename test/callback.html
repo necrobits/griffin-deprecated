@@ -1,0 +1,47 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <title>The HTML5 Herald</title>
+    <meta name="description" content="The HTML5 Herald">
+    <meta name="author" content="SitePoint">
+
+
+</head>
+
+<body>
+Hello this is callback
+
+<div id="hash">
+    Nothing
+</div>
+<script>
+    function getHashDataFromUrl() {
+        const data = {};
+        const pairs = window.location.hash.substring(1).split("&");
+        for (let pairStr of pairs) {
+            if (pairStr.trim().length === 0) continue;
+            const [key, val] = pairStr.split("=");
+            data[key] = val;
+        }
+        if (data.hasOwnProperty("token")) {
+            if (window.opener){
+                window.opener.griffinCallback(data.token);
+            }
+            if (window.parent){
+                window.parent.griffinCallback(data.token);
+            }
+            window.parent.postMessage("griffin.success");
+        } else {
+            window.parent.postMessage("griffin.failed");
+        }
+        return data;
+    }
+
+    document.getElementById("hash").innerText = JSON.stringify(getHashDataFromUrl());
+
+</script>
+</body>
+</html>

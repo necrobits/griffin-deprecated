@@ -1,0 +1,42 @@
+<%- include('../template/head', {title: title}) -%>
+<body>
+<div class="cover-container">
+    <div>
+        <main class="inner cover">
+            <div class="logo">
+                <img src="/assets/logo.png"/>
+            </div>
+
+            <div style="margin-top: 50px; display:block; text-align: center;">
+                <%= __('login_success') %>
+            </div>
+        </main>
+    </div>
+</div>
+
+</body>
+<script>
+    function getHashDataFromUrl() {
+        const data = {};
+        const pairs = window.location.hash.substring(1).split("&");
+        for (let pairStr of pairs) {
+            if (pairStr.trim().length === 0) continue;
+            const [key, val] = pairStr.split("=");
+            data[key] = val;
+        }
+        return data;
+    }
+
+    const hashData = getHashDataFromUrl();
+    console.log("hashdata", hashData);
+    if (hashData.hasOwnProperty("token") && hashData.hasOwnProperty("appUrl")) {
+        console.log(decodeURI(hashData.appUrl));
+        if (window.opener) {
+            window.opener.postMessage("griffin.sso.token=" + hashData.token, decodeURIComponent(hashData.appUrl));
+        } else if (window.parent) {
+            window.parent.postMessage("griffin.sso.token=" + hashData.token, decodeURIComponent(hashData.appUrl));
+        }
+    }
+
+</script>
+</html>

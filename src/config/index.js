@@ -10,6 +10,8 @@ const reservedFields = [
     'created_at',
     'updated_at'
 ];
+
+// TODO: clean up
 const systemUserFields = {
     email: {
         constraints: {
@@ -38,20 +40,20 @@ const usernameField = {
 class ConfigProvider {
     constructor(yamlFile) {
         const yamlConfig = loadConfigurations(yamlFile);
-        const definedCustomFields = _.keys(yamlConfig['userFields']);
+        const definedCustomFields = _.keys(yamlConfig['user.fields']);
 
         if (_.intersection(definedCustomFields, reservedFields).length > 0) {
             throw new Error('userFields in the config contains prohibited field name');
         }
         let requiredUserFields = {};
-        if (!_.get(yamlConfig, 'sso.usingEmails', false)) {
+        if (!_.get(yamlConfig, 'user.disableUsername', false)) {
             requiredUserFields.username = usernameField;
         }
         requiredUserFields = {...requiredUserFields, ...systemUserFields};
 
         this.config = {
             ...yamlConfig,
-            allUserFields: {...requiredUserFields, ...yamlConfig.userFields},
+            allUserFields: _.merge(requiredUserFields, yamlConfig.user.fields),
             server: {
                 host: process.env.HOST || 'localhost',
                 port: process.env.PORT || 3000,

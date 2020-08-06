@@ -1,39 +1,58 @@
+user:
+  disableUsername: false
+  emailVerification: false
+  fields:
+    # Add constraints to system fields
+    username:
+      constraints:
+        minLength: 6
+        maxLength: 20
+    password:
+      constraints:
+        minLength: 8
+        maxLength: 30
+    # Define custom fields
+    first_name:
+      type: string
+      constraints:
+        maxLength: 50
+        minLength: 2
+    last_name:
+      type: string
+      constraints:
+        maxLength: 20
+        minLength: 2
+    address:
+      type: string
+      optional: true
 
-userFields:
-  first_name:
-    type: string
-    constraints:
-      maxLength: 50
-      minLength: 2
-  last_name:
-    type: string
-    constraints:
-      maxLength: 20
-      minLength: 2
-  address:
-    type: string
-    optional: true
+# Authentication system config
+sso:
+  loginUrl: /sso/login
+  logoutUrl: /sso/logout
+  signupUrl: /sso/signup
 
-clientSettings:
+  token:
+    issuer: neuralgi
+    expiration: 604800
+
   encryption:
     keySize: 1024
     publicKey:
       type: spki
     privateKey:
       type: pkcs8
-  clientIdSalt: griffin-id-salt
-  clientSecretSalt: griffin-serect-salt
 
-sso:
-  usingEmail: false
-  methods:
-    - jwt
-  loginUrl: /sso/login
-  signupUrl: /sso/signup
-jwt:
-  issuer: neuralgi
-  expiration: 604800
+  client:
+    id:
+      salt: griffinidsalt
+      alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      minLength: 10
+    secret:
+      salt: griffinsecretsalt
+      alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=-_/"
+      minLength: 30
 
-dashboard:
+adminDashboard:
   username: admin
   password: admin

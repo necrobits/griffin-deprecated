@@ -26,7 +26,7 @@ function validateFieldValue(fieldName, value, fieldConfig) {
         }
         let valid = Validators[constraintName](value, constraintVal);
         if (!valid) {
-            new AppError(`constraint_violation`, {
+            throw new AppError(`constraint_violation`, {
                 field: fieldName,
                 constraint: constraintName,
                 constraintValue: constraintVal,

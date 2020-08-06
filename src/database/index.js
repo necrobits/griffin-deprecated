@@ -31,7 +31,7 @@ async function initializeDatabase() {
             }
         );
     }
-    const [userModelDef, userIndexes] = constructUserModel(config.get('userFields'), config.get('sso.usingEmail', false));
+    const [userModelDef, userIndexes] = constructUserModel(config.get('userFields'), config.get('user.disableUsername', false));
     const [clientModelDef, clientIndexes] = constructClientModel();
 
     const UserModel = db.define('User', userModelDef, {
