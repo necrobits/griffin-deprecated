@@ -52,7 +52,6 @@ class ApiController {
             console.log("[ERROR] Message: ", e.error);
             res.status(e.statusCode()).json(e);
         }
-
     }
 
 

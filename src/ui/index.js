@@ -21,23 +21,23 @@ function initializeUI(app, config = defaultConfig) {
     const usingEmail = Container.get('config').get('user.disableUsername');
     const userFieldsForView = fieldViewsFromConfig(userFields);
     return {
-        renderLoginView(res, clientId, extra = {}) {
+        renderLoginView(res, clientId, responseType, extra = {}) {
             res.render('login', {
                 userFields: userFieldsForView.filter(field => (field.key === 'email' && usingEmail) || (field.key === 'username' && !usingEmail) || field.key === 'password'),
                 usingEmail: usingEmail,
-                signupPath: `${config.signupPath}?client_id=${clientId}`,
-                loginPath: `${config.loginPath}?client_id=${clientId}`,
+                signupPath: `${config.signupPath}?client_id=${clientId}&response_type=${responseType}`,
+                loginPath: `${config.loginPath}?client_id=${clientId}&response_type=${responseType}`,
                 title: `${res.__('login_page.title')} | ${res.__('brand')}`,
                 clientId: clientId,
                 ...extra
             })
         },
-        renderSignupView(res, clientId, extra = {}) {
+        renderSignupView(res, clientId, responseType, extra = {}) {
             res.render('signup', {
                 userFields: userFieldsForView,
                 usingEmail: usingEmail,
-                signupPath: `${config.signupPath}?client_id=${clientId}`,
-                loginPath: `${config.loginPath}?client_id=${clientId}`,
+                signupPath: `${config.signupPath}?client_id=${clientId}&response_type=${responseType}`,
+                loginPath: `${config.loginPath}?client_id=${clientId}&response_type=${responseType}`,
                 title: `${res.__('signup_page.title')} | ${res.__('brand')}`,
                 clientId: clientId,
                 ...extra,

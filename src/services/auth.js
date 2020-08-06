@@ -3,9 +3,9 @@ const Container = require('typedi').Container;
 const _ = require('lodash');
 const AppError = require('../errors');
 const jwt = require('jsonwebtoken');
+const querystring = require('querystring');
 const sign = require('util').promisify(jwt.sign);
-const verify = require('util').promisify(jwt.verify);
-
+const verifyJWT = require('util').promisify(jwt.verify);
 
 /**
  * This is a layer above of User Service, providing data transformation functions
@@ -14,20 +14,20 @@ class AuthService {
     constructor() {
         this.userService = Container.get('service.user');
         this.clientService = Container.get('service.client');
-        this.jwtConfig = Container.get('config').get('sso.token');
+        this.ssoConfig = Container.get('config').get('sso');
+        this.jwtConfig = this.ssoConfig.token;
     }
 
-    async makeSSOResponse(profile, client, hostname, redirectUrl) {
-        console.log('hostname', hostname)
-        if (redirectUrl == null) {
-            redirectUrl = client.callback_url;
-        }
-        if (redirectUrl && !redirectUrl.startsWith(client.callback_url)) {
-            throw new AppError('invalid_callback_url');
-        }
-        console.log('client pri', client.private_key)
+    async makeSSOResponse(user, client, responseType, state, redirectUri) {
+        redirectUri = this._conformRedirectURI(client, redirectUri);
+
+        delete user['password'];
+        delete user['created_at'];
+        delete user['updated_at'];
+
         const token = await sign({
-            ...profile,
+            ...user,
+            oaud: client.client_id,
         }, client.private_key, {
             algorithm: 'RS256',
             expiresIn: _.get(this.jwtConfig, 'expiration', 604800),
@@ -36,65 +36,78 @@ class AuthService {
 
         const callbackData = {
             token: token,
+            state: state
         };
-        // TODO: replace with hostname
-        if (client.callback_url === 'http://localhost:3000/sso/success') {
+
+        if (redirectUri === this.ssoConfig.defaultCallback) {
             callbackData.appUrl = client.app_url;
         }
+        let separator = '?';
+        if (responseType === "token") {
+            separator = '#';
+        }
+        const redirectTo = `${redirectUri}${separator}${querystring.stringify(callbackData)}`;
+
         return {
             // For API
             body: {
-                ...profile,
+                ...user,
                 token: token,
             },
             // For SSO UI
             cookies: {
                 token: token
             },
-            callbackUrl: redirectUrl,
-            callbackData: callbackData,
+            redirect: redirectTo,
         }
     }
 
-    // TODO: replace "method" with response_type, state
-    async login(clientId, userId, password, method = 'jwt', hostname, redirectUrl = null) {
-        // verify client
-        if (clientId == null) {
-            throw new AppError('invalid_client');
-        }
-        const client = await this.clientService.getClientById(clientId);
-        if (client == null) {
-            throw new AppError('invalid_client');
-        }
-        // TODO : refactor this
-        // allow custom redirect url, only if it's a sub-path of the registered url
-        if (redirectUrl == null) {
-            redirectUrl = client.callback_url;
-        }
-        if (!redirectUrl.startsWith(client.callback_url)) {
-            throw new AppError('invalid_callback_url');
-        }
+    async login(client, username, password, responseType = "code", state = "", redirectUri = null) {
         // verify user credentials
-        if (userId == null || password == null) {
+        if (username == null || password == null) {
             throw new AppError('invalid_credential');
         }
-        const profile = await this.userService.login(userId, password);
-
-        return this.makeSSOResponse(profile, client, hostname, redirectUrl);
+        const profile = await this.userService.login(username, password);
+        return this.makeSSOResponse(profile, client, responseType, state, redirectUri);
     }
 
-    async verifyToken(clientId, userId, password) {
+    async authorize(client, token, responseType = "code", state = "", redirectUri = null) {
+        const claims = await this._verifyToken(token);
+        delete claims['sub'];
+        delete claims['exp'];
+        delete claims['aud'];
+        delete claims['oaud'];
+        delete claims['iat'];
+        delete claims['iss'];
+        delete claims['nbf'];
+        delete claims['jti'];
+        return this.makeSSOResponse(claims, client, responseType, state, redirectUri);
     }
 
-    async verifyToken(token, client) {
-        if(token == null || token.length < 10) {
-            throw new AppError('token_not_found')
+    async _verifyToken(token) {
+        const claims = jwt.decode(token);
+        if (claims == null) {
+            throw new AppError('unauthorized');
         }
-        try {
-            return await verify(token, client.public_key) != null;
-        } catch (e) {
-            throw new AppError('token_expired')
+        const originClient = await this.clientService.getClientById(claims['oaud']);
+        if (originClient == null) {
+            throw new AppError('invalid_client')
         }
+        return verifyJWT(token, originClient.public_key);
+    }
+
+    _conformRedirectURI(client, redirectUri) {
+        if (redirectUri == null) {
+            if (client.callback_url == null) {
+                return this.ssoConfig.defaultCallback;
+            }
+            return client.callback_url;
+        }
+
+        if (!redirectUri.startsWith(client.callback_url)) {
+            throw new AppError('invalid_callback_url');
+        }
+        return redirectUri;
     }
 }
 

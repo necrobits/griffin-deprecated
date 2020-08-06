@@ -28,9 +28,7 @@
     }
 
     const hashData = getHashDataFromUrl();
-    console.log("hashdata", hashData);
     if (hashData.hasOwnProperty("token") && hashData.hasOwnProperty("appUrl")) {
-        console.log(decodeURI(hashData.appUrl));
         if (window.opener) {
             window.opener.postMessage("griffin.sso.token=" + hashData.token, decodeURIComponent(hashData.appUrl));
         } else if (window.parent) {

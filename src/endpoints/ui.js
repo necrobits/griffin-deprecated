@@ -4,47 +4,36 @@ const express = require('express');
 const _ = require('lodash');
 
 class PublicUIController {
-    constructor({loginUrl, signupUrl, logoutUrl, authUrl, assets, renderer}) {
+    constructor({loginUrl, signupUrl, logoutUrl, assets, renderer}) {
         this.authService = Container.get('service.auth');
         this.userService = Container.get('service.user');
         this.clientService = Container.get('service.client');
         this.loginUrl = loginUrl;
         this.logoutUrl = logoutUrl;
         this.signupUrl = signupUrl;
-        this.authUrl = authUrl;
         this.assetsDir = assets;
         this.renderer = renderer;
         this.router = express.Router();
-        this._setupRoutes();
+        this._setupRoutes.bind(this)();
     }
 
     // TODO: invalidate token after logout
-    async loginView(req, res) {
+    loginView(req, res) {
         const client = req.ssoClient;
-        if (req.cookies['token']) {
-            const callbackData = {
-                token: req.cookies['token']
-            };
-            if (client.callback_url === 'http://localhost:3000/sso/success') {
-                callbackData.appUrl = client.app_url;
-            }
-            res.redirect(`${client.callback_url}#${querystring.stringify(callbackData)}`);
-            res.end();
-            return;
-        }
-        this.renderer.renderLoginView(res, req.query.client_id, {clientAppUrl: client.app_url});
+
+        this.renderer.renderLoginView(res, req.query.client_id, req.ssoParams.response_type, {clientAppUrl: client.app_url});
     }
 
-    async successView(req, res) {
+    successView(req, res) {
         this.renderer.renderSuccessView(res, req.cookies['token']);
     }
 
     async login(req, res) {
         try {
-            const ssoResponse = await this.authService.login(req.body.client_id, req.body.username, req.body.password, req.body.type);
-            applySSOResponse(res, req.body.type, ssoResponse);
+            const ssoResponse = await this.authService.login(req.ssoClient, req.body.username, req.body.password, req.ssoParams.response_type, req.ssoParams.state, req.ssoParams.redirect_uri);
+            applySSOResponse(res, ssoResponse);
         } catch (e) {
-            this.renderer.renderLoginView(res, req.body.client_id, {
+            this.renderer.renderLoginView(res, req.body.client_id, req.ssoParams.response_type, {
                 error: e.error,
                 clientAppUrl: req.ssoClient.app_url
             });
@@ -56,12 +45,14 @@ class PublicUIController {
         try {
             // TODO: refactor this
             const user = await this.userService.register(req.body);
-            const requiredFieldsForToken = Container.get('config').get('sso.token.required_fields');
-            const ssoResponse = await this.authService.makeSSOResponse(_.pick(user, requiredFieldsForToken), req.ssoClient, req.headers.origin);
-            applySSOResponse(res, 'jwt', ssoResponse);
+            const ssoResponse = await this.authService.makeSSOResponse(user, req.ssoClient, req.ssoParams.response_type, req.ssoParams.state, req.ssoParams.redirect_uri);
+            applySSOResponse(res, ssoResponse);
 
         } catch (e) {
-            this.renderer.renderSignupView(res, req.body.client_id, {error: e});
+            this.renderer.renderSignupView(res, req.body.client_id, req.ssoParams.response_type, {
+                error: e,
+                clientAppUrl: req.ssoClient.app_url
+            });
 
             console.log("[ERROR] Message: ", e.message, e);
         }
@@ -70,19 +61,16 @@ class PublicUIController {
     async authorize(req, res) {
         const token = req.cookies.token;
         try {
-            await this.authService.verifyToken(token, req.ssoClient);
-            res.status(200).end()
+            const ssoResponse = await this.authService.authorize(req.ssoClient, token, req.ssoParams.response_type, req.ssoParams.state, req.ssoParams.redirect_uri);
+            applySSOResponse(res, ssoResponse);
+
         } catch (e) {
+            this.renderer.renderLoginView(res, req.query.client_id, req.ssoParams.response_type, {clientAppUrl: client.app_url});
             console.log("[ERROR] Message: ", e.message, e);
-            res.cookie('token', '');
-            res.cookie('accept_token', '');
-            res.cookie('accessToken', '');
-            res.status(e.statusCode()).json({error: e.error});
         }
     }
 
-    async _checkClientId(req, res, next) {
-        console.log('client', req.query.client_id)
+    async _requireClient(req, res, next) {
         if (!req.query.hasOwnProperty('client_id') && !req.body.hasOwnProperty('client_id')) {
             this.renderer.renderErrorView(res, 'invalid_client');
             return;
@@ -96,27 +84,53 @@ class PublicUIController {
         next();
     }
 
+    async _checkToken(req, res, next) {
+        if (req.cookies['token']) {
+            try {
+                const token = req.cookies['token'];
+                const ssoResponse = await this.authService.authorize(req.ssoClient, token, req.ssoParams.response_type, req.ssoParams.state, req.ssoParams.redirect_uri);
+                applySSOResponse(res, ssoResponse);
+            } catch (e) {
+                console.log(e);
+                res.redirect(this.loginUrl);
+            }
+        } else {
+            next();
+        }
+    }
+
+    _requireParams(req, res, next) {
+        const requiredKeys = ['response_type'];
+        const ssoParams = _.merge(req.query, req.body);
+        if (_.intersection(requiredKeys, _.keys(ssoParams)).length < requiredKeys.length) {
+            this.renderer.renderErrorView(res, 'invalid_request');
+        } else {
+            req.ssoParams = ssoParams;
+            next();
+        }
+    }
+
 
     async logout(req, res) {
-        res.cookie('token', '');
-        res.cookie('accept_token', '');
-        res.cookie('accessToken', '');
+        res.clearCookie('token');
         this.renderer.renderLogoutView(res)
     }
 
     _setupRoutes() {
+        const requireClient = this._requireClient.bind(this);
+        const requireParams = this._requireParams.bind(this);
+        const checkToken = this._checkToken.bind(this);
         this.router.use('/assets', express.static(this.assetsDir));
-        this.router.post(this.loginUrl, this._checkClientId.bind(this), this.login.bind(this));
-        this.router.post(this.signupUrl, this._checkClientId.bind(this), this.register.bind(this));
-        this.router.get(this.loginUrl, this._checkClientId.bind(this), this.loginView.bind(this));
-        this.router.get(this.signupUrl, this._checkClientId.bind(this), (req, res) => this.renderer.renderSignupView(res, req.query.client_id));
+        this.router.post(this.loginUrl, requireClient, requireParams, this.login.bind(this));
+        this.router.post(this.signupUrl, requireClient, requireParams, this.register.bind(this));
+        this.router.get(this.loginUrl, requireClient, requireParams, checkToken, this.loginView.bind(this));
+        this.router.get(this.signupUrl, requireClient, requireParams, checkToken, (req, res) => this.renderer.renderSignupView(res, req.query.client_id));
         this.router.get(this.logoutUrl, this.logout.bind(this));
         this.router.get('/sso/success', this.successView.bind(this));
-        this.router.get(this.authUrl, this._checkClientId.bind(this), this.authorize.bind(this));
     }
 }
 
-function applySSOResponse(res, loginType, ssoResponse) {
+function applySSOResponse(res, ssoResponse) {
     if (_.has(ssoResponse, 'headers')) {
         for (let h of _.keys(ssoResponse.headers)) {
             res.header(h, ssoResponse.headers[h]);
@@ -127,13 +141,11 @@ function applySSOResponse(res, loginType, ssoResponse) {
             res.cookie(h, ssoResponse.cookies[h]);
         }
     }
-    const callbackData = {
-        type: loginType,
-        ...ssoResponse.callbackData
-    };
-    console.log("CALLBACK", callbackData);
-    const callbackUrl = `${ssoResponse.callbackUrl}#${querystring.stringify(callbackData)}`;
-    res.redirect(callbackUrl);
+    if (ssoResponse.hasOwnProperty("redirect")) {
+        res.redirect(ssoResponse.redirect);
+    } else {
+        res.end();
+    }
 }
 
 module.exports = PublicUIController;

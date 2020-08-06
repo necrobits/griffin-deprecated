@@ -39,7 +39,7 @@ sso:
   loginUrl: /sso/login
   logoutUrl: /sso/logout
   signupUrl: /sso/signup
-  authUrl: /sso/auth
+  defaultCallback: /sso/success
 
   token:
     issuer: neuralgi
@@ -65,23 +65,6 @@ sso:
       salt: griffinsecretsalt
       alphabet: 0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ=-_/
       minLength: 30
-    fields:
-      is_trusted:
-        optional: false
-      service_name:
-        optional: false
-        constraints:
-          minLength: 8
-          maxLength: 30
-      app_url:
-        optional: false
-        constraints:
-          regexMatch: https?:\/\/?[^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|\/?))
-      callback_url:
-        optional: true
-        constraints:
-          regexMatch: https?:\/\/((www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|localhost(:\d+)?)
-
 
 adminDashboard:
   username: admin

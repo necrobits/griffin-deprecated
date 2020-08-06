@@ -45,7 +45,8 @@
 		"invalid_username_or_password": "Wrong username or password",
 		"invalid_field": "Please check this field again",
 		"unique_field_exists": "{{field}} has already existed",
-		"field_exists": "\"{{field}}\" has already taken. Please try another"
+		"field_exists": "\"{{field}}\" has already taken. Please try another",
+		"invalid_request": "error.invalid_request"
 	},
 	"login_success": "login_success",
 	"error_title": "error_title",
