@@ -13,7 +13,7 @@ class ApiController {
 
     async login(req, res) {
         try {
-            const ssoResponse = await this.authService.login(req.body.client_id, req.body.username, req.body.password, req.body.type);
+            const ssoResponse = await this.authService.login(req.body.client_id, req.body.username, req.body.password, req.body.type, req.header.origin);
             res.json(ssoResponse.body);
         } catch (e) {
             console.log("[ERROR] Message: ", e.message);

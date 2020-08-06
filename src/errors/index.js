@@ -12,6 +12,8 @@ const ErrorToStatusCode = {
     'unique_field_exists': 409,
     'invalid_email': 400,
     'invalid_username': 400,
+    'token_expired': 401,
+    'token_not_found': 401
 };
 
 class AppError extends Error {

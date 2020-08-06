@@ -13,7 +13,7 @@ function validateFieldValue(fieldName, value, fieldConfig) {
         }
         return true;
     }
-    if (!_.has(TypeChecker, type.toLowerCase()) || !TypeChecker[type](value)) {
+    if (!_.has(TypeChecker, type.toLowerCase()) || !TypeChecker[type.toLowerCase()](value)) {
         throw new AppError(`invalid_value_of_type`, {type, value})
     }
 
@@ -21,10 +21,13 @@ function validateFieldValue(fieldName, value, fieldConfig) {
 
         const constraintName = c;
         const constraintVal = constraints[c];
+
         if (!_.has(Validators, constraintName)) {
             continue;
         }
+
         let valid = Validators[constraintName](value, constraintVal);
+
         if (!valid) {
             throw new AppError(`constraint_violation`, {
                 field: fieldName,

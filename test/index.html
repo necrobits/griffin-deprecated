@@ -19,13 +19,14 @@ Hello this is main page
 <div id="griffin-init"></div>
 <script>
     Griffin.init({
-        appId: 'gXnWvND1Ae'
+        appId: 'gqkoGpxPmb'
     });
-    Griffin.getLoginStatus(function (profile, token) {
+
+    Griffin.authorize(function (profile, token) {
         if (profile) {
-            griffinCallbackSuccess(profile)
+            griffinCallbackSuccess(profile);
         } else {
-            griffinCallbackFailed();
+            document.getElementById("loginBtn").click();
         }
     });
 

@@ -8,12 +8,12 @@
             </div>
 
             <div class="heading">
-                <h1 style="margin-bottom: 0px"><%= __('brand') %></h1>
-                <div style="color:#666666; font-size: .9rem"><%= __('signup_page.title') %></div>
+                <h1 class="noselect" style="margin-bottom: 0px"><%= __('brand') %></h1>
+                <div class="noselect" style="color:#666666; font-size: .9rem"><%= __('signup_page.title') %></div>
             </div>
 
             <% if(locals.error){ %>
-                <div class="submit-error">
+                <div class="submit-error noselect">
                     <%= __('error.' + error.error, {field: __('field.' + error.args.field)}) %>
                 </div>
             <% } %>
@@ -54,7 +54,7 @@
                                     <% } %>
                             >
 
-                            <span><%= __('field.' + field.key) %></span>
+                            <span class="noselect"><%= __('field.' + field.key) %></span>
 
                         </label>
                     </div>

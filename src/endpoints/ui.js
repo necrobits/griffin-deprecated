@@ -4,13 +4,14 @@ const express = require('express');
 const _ = require('lodash');
 
 class PublicUIController {
-    constructor({loginUrl, signupUrl, logoutUrl, assets, renderer}) {
+    constructor({loginUrl, signupUrl, logoutUrl, authUrl, assets, renderer}) {
         this.authService = Container.get('service.auth');
         this.userService = Container.get('service.user');
         this.clientService = Container.get('service.client');
         this.loginUrl = loginUrl;
         this.logoutUrl = logoutUrl;
         this.signupUrl = signupUrl;
+        this.authUrl = authUrl;
         this.assetsDir = assets;
         this.renderer = renderer;
         this.router = express.Router();
@@ -54,8 +55,9 @@ class PublicUIController {
     async register(req, res) {
         try {
             // TODO: refactor this
-            const {updated_at, created_at, password, ...user} = await this.userService.register(req.body);
-            const ssoResponse = await this.authService.makeSSOResponse(user, req.ssoClient);
+            const user = await this.userService.register(req.body);
+            const requiredFieldsForToken = Container.get('config').get('sso.token.required_fields');
+            const ssoResponse = await this.authService.makeSSOResponse(_.pick(user, requiredFieldsForToken), req.ssoClient, req.headers.origin);
             applySSOResponse(res, 'jwt', ssoResponse);
 
         } catch (e) {
@@ -65,7 +67,22 @@ class PublicUIController {
         }
     }
 
+    async authorize(req, res) {
+        const token = req.cookies.token;
+        try {
+            await this.authService.verifyToken(token, req.ssoClient);
+            res.status(200).end()
+        } catch (e) {
+            console.log("[ERROR] Message: ", e.message, e);
+            res.cookie('token', '');
+            res.cookie('accept_token', '');
+            res.cookie('accessToken', '');
+            res.status(e.statusCode()).json({error: e.error});
+        }
+    }
+
     async _checkClientId(req, res, next) {
+        console.log('client', req.query.client_id)
         if (!req.query.hasOwnProperty('client_id') && !req.body.hasOwnProperty('client_id')) {
             this.renderer.renderErrorView(res, 'invalid_client');
             return;
@@ -82,6 +99,8 @@ class PublicUIController {
 
     async logout(req, res) {
         res.cookie('token', '');
+        res.cookie('accept_token', '');
+        res.cookie('accessToken', '');
         this.renderer.renderLogoutView(res)
     }
 
@@ -93,6 +112,7 @@ class PublicUIController {
         this.router.get(this.signupUrl, this._checkClientId.bind(this), (req, res) => this.renderer.renderSignupView(res, req.query.client_id));
         this.router.get(this.logoutUrl, this.logout.bind(this));
         this.router.get('/sso/success', this.successView.bind(this));
+        this.router.get(this.authUrl, this._checkClientId.bind(this), this.authorize.bind(this));
     }
 }
 

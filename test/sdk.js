@@ -19,7 +19,8 @@ class GriffinJS {
         if (!appId) {
             throw new Error("appId must be specified");
         }
-        this.appId = appId;
+
+        this.authUrl = `${this.serverUrl}/sso/auth?client_id=${appId}`;
         this.loginUrl = `${this.serverUrl}/sso/login?client_id=${appId}`;
         this.logoutUrl = `${this.serverUrl}/sso/logout`;
         this.containerId = containerId || 'griffin-init';
@@ -27,10 +28,21 @@ class GriffinJS {
         this.initialized = true;
     }
 
+    authorize(callbackFn) {
+        const iframe = this._createIframe(this.authUrl);
+        iframe.addEventListener('load', function () {
+            console.log('123')
+
+            if (callbackFn) callbackFn(this.profile, this.token);
+        })
+    }
+
     // Callback (profile, token)
     getLoginStatus(callbackFn) {
+        console.log('getLoginStatus')
         const iframe = this._createIframe(this.loginUrl);
         iframe.addEventListener('load', () => {
+            console.log('123')
             if (callbackFn) callbackFn(this.profile, this.token);
         })
     }
@@ -60,7 +72,10 @@ class GriffinJS {
                 }
             }
         }, 500);
-        this.dialog.window.focus();
+        if (this.dialog && this.dialog.window) {
+            this.dialog.window.focus();
+
+        }
     }
 
     logout(callbackFn) {
@@ -71,7 +86,6 @@ class GriffinJS {
     }
 
     _handleMessage(event) {
-        console.log("event", event);
         if (event.origin.startsWith(this.serverUrl) && event.data.length > 0) {
             if (event.data.startsWith('griffin.sso.token')) {
                 this._onLoggedIn(event.data.split('=')[1]);

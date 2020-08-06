@@ -47,7 +47,7 @@ async function registerClient(serviceName, args) {
         console.log("================================================================");
         console.log("================================================================");
     } catch (e) {
-        console.log("Error:", e.message);
+        console.log("Error:", e);
     }
 }
 

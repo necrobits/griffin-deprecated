@@ -13,14 +13,17 @@ const saltRounds = 10;
 class UserService {
     constructor() {
         this.userRepo = Container.get('repo.user');
-        this.usingEmail = Container.get('config').get('user.');
+        this.usingEmail = Container.get('config').get('user.disableUsername');
         this.fields = Container.get('config').get('allUserFields');
     }
 
     async register(rawUserData) {
         const userData = _.pick(rawUserData, _.keys(this.fields));
+        userData.email = userData.email.toLowerCase();
+        userData.username = userData.username.toLowerCase();
+
         for (let f of _.keys(this.fields)) {
-            validateFieldValue(f, userData[f], this.fields[f])
+            validateFieldValue(f, userData[f], this.fields[f]);
         }
         const passwordHash = await bcryptHash(userData.password, saltRounds);
         const user = {...userData, password: passwordHash};
@@ -39,9 +42,9 @@ class UserService {
     async login(id, rawPassword) {
         let user;
         if (this.usingEmail) {
-            user = await this.userRepo.findUserByEmail(id);
+            user = await this.userRepo.findUserByEmail(id.toLowerCase());
         } else {
-            user = await this.userRepo.findUserByUsername(id);
+            user = await this.userRepo.findUserByUsername(id.toLowerCase());
         }
         if (user == null) {
             throw new AppError('invalid_username_or_password');
@@ -55,18 +58,19 @@ class UserService {
     }
 
     doesUsernameAlreadyExist(username) {
-        if (!Validators.regexMatch(username, this.fields.username.constraints.regexMatch)) {
+        if (username == null || !Validators.regexMatch(username, this.fields.username.constraints.regexMatch)) {
             throw  new AppError(('invalid_username'));
         }
         return this.userRepo.findUserByUsername(username).then(r => r != null);
     }
 
     doesEmailAlreadyExist(email) {
-        if (!TypeChecker.email(email)) {
+        if (email == null || !TypeChecker.email(email)) {
             throw new AppError('invalid_email');
         }
         return this.userRepo.findUserByEmail(email).then(r => r != null);
     }
+
 
 }
 

@@ -45,18 +45,22 @@ function initializeExpressApp(app) {
     const loginPath = config.get('sso.loginUrl');
     const signupPath = config.get('sso.signupUrl');
     const logoutPath = config.get('sso.logoutUrl');
+    const authPath = config.get('sso.authUrl');
 
     const viewRenderer = initializeUI(app, {
         loginPath: loginPath,
         signupPath: signupPath
     });
+
     const uiController = new PublicUIController({
-        loginUrl: loginPath,
-        signupUrl: signupPath,
-        logoutUrl: logoutPath,
-        renderer: viewRenderer,
-        assets: path.join(__dirname, '../public'),
-    });
+            loginUrl: loginPath,
+            signupUrl: signupPath,
+            logoutUrl: logoutPath,
+            authUrl: authPath,
+            renderer: viewRenderer,
+            assets: path.join(__dirname, '../public'),
+        })
+    ;
     app.use(uiController.router);
 
 }
