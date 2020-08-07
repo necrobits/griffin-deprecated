@@ -23,7 +23,7 @@ module.exports = {
                 "constraints": {
                     "minLength": 8,
                     "maxLength": 30,
-                    "regexMatch": "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*\\-_\"{}()]).{8,50}$"
+                    "regexMatch": "^(?=.*?[A-Za-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*\\-_\"{}()]).{8,30}$"
                 }
             },
             "first_name": {
