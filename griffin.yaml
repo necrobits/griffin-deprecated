@@ -34,6 +34,9 @@ user:
       type: string
       optional: true
 
+translation:
+  defaultLocale: en
+  
 # Authentication system config
 sso:
   loginUrl: /sso/login

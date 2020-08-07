@@ -1,3 +1,4 @@
+const path = require('path');
 module.exports = {
     "user": {
         "disableUsername": false,
@@ -50,7 +51,7 @@ module.exports = {
         "logoutUrl": "/sso/logout",
         "signupUrl": "/sso/signup",
         "token": {
-            "issuer": "neuralgi",
+            "issuer": "griffin",
             "expiration": 604800,
             "required_fields": [
                 "id",
@@ -107,5 +108,9 @@ module.exports = {
     "adminDashboard": {
         "username": "admin",
         "password": "admin"
+    },
+    "translation": {
+        "defaultLocale": "en",
+        "directory": path.join(__dirname, "../../locales"),
     }
 };

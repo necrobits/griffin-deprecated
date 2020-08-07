@@ -3,30 +3,31 @@ const Container = require('typedi').Container;
 const i18n = require('./i18n');
 const _ = require('lodash');
 
-const defaultAssetsDir = path.join(__dirname, '../public');
-const defaultLoginPath = '/sso/login';
-const defaultSignupPath = '/sso/signup';
-const defaultConfig = {
-    assets: defaultAssetsDir,
-    loginPath: defaultLoginPath,
-    signupPath: defaultSignupPath
-};
+function initializeUI(app) {
+    const config = Container.get('config');
+    // translation
+    const i18nConfig = config.get('translation');
+    const i18nOpts = {
+        defaultLocale: i18nConfig.defaultLocale,
+        directory: i18nConfig.directory
+    };
+    app.use(i18n(i18nOpts));
 
-function initializeUI(app, config = defaultConfig) {
-    app.use(i18n);
+    // views
     app.set('views', path.join(__dirname, 'views'));
     app.set('view engine', 'ejs');
-
-    const userFields = Container.get('config').get('allUserFields');
-    const usingEmail = Container.get('config').get('user.disableUsername');
+    const signupPath = config.get('sso.signupUrl');
+    const loginPath = config.get('sso.loginUrl');
+    const userFields = config.get('allUserFields');
+    const usingEmail = config.get('user.disableUsername');
     const userFieldsForView = fieldViewsFromConfig(userFields);
     return {
         renderLoginView(res, clientId, responseType, extra = {}) {
             res.render('login', {
                 userFields: userFieldsForView.filter(field => (field.key === 'email' && usingEmail) || (field.key === 'username' && !usingEmail) || field.key === 'password'),
                 usingEmail: usingEmail,
-                signupPath: `${config.signupPath}?client_id=${clientId}&response_type=${responseType}`,
-                loginPath: `${config.loginPath}?client_id=${clientId}&response_type=${responseType}`,
+                signupPath: `${signupPath}?client_id=${clientId}&response_type=${responseType}`,
+                loginPath: `${loginPath}?client_id=${clientId}&response_type=${responseType}`,
                 title: `${res.__('login_page.title')} | ${res.__('brand')}`,
                 clientId: clientId,
                 ...extra
@@ -36,8 +37,8 @@ function initializeUI(app, config = defaultConfig) {
             res.render('signup', {
                 userFields: userFieldsForView,
                 usingEmail: usingEmail,
-                signupPath: `${config.signupPath}?client_id=${clientId}&response_type=${responseType}`,
-                loginPath: `${config.loginPath}?client_id=${clientId}&response_type=${responseType}`,
+                signupPath: `${signupPath}?client_id=${clientId}&response_type=${responseType}`,
+                loginPath: `${loginPath}?client_id=${clientId}&response_type=${responseType}`,
                 title: `${res.__('signup_page.title')} | ${res.__('brand')}`,
                 clientId: clientId,
                 ...extra,

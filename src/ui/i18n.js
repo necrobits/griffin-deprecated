@@ -1,25 +1,37 @@
 const i18n = require('i18n');
-const path = require('path');
 const _ = require('lodash');
-const locales = ['en', 'de', 'vi'];
-i18n.configure({
-    // setup some locales - other locales default to en silently
-    locales: locales,
-    objectNotation: true,
-    // where to store json files - defaults to './locales' relative to modules directory
-    directory: path.join(__dirname, '../../locales'),
-    fallbacks: {'*': 'en'},
-    defaultLocale: 'en',
+const fs = require('fs');
 
-    // sets a custom cookie name to parse locale settings from  - defaults to NULL
-    cookie: 'lang',
-});
 
-module.exports = function (req, res, next) {
-    i18n.init(req, res);
-    if (req.query.lang && _.includes(locales, req.query.lang)) {
-        res.setLocale(req.query.lang);
-        res.cookie('lang', req.query.lang);
+function listLocalesInDirectory(dirPath) {
+    const localeList = [];
+    const files = fs.readdirSync(dirPath);
+    for (let f of files) {
+        if (f.endsWith('.json')) {
+            localeList.push(f.split('.')[0]);
+        }
     }
-    return next();
+    return localeList;
+}
+
+
+module.exports = function (config) {
+    const localesPath = config.directory;
+    const locales = listLocalesInDirectory(localesPath);
+    i18n.configure({
+        locales: locales,
+        objectNotation: true,
+        directory: config.directory,
+        fallbacks: {'*': config.defaultLocale},
+        defaultLocale: config.defaultLocale,
+        cookie: 'lang',
+    });
+    return function (req, res, next) {
+        i18n.init(req, res);
+        if (req.query.lang && _.includes(locales, req.query.lang)) {
+            res.setLocale(req.query.lang);
+            res.cookie('lang', req.query.lang);
+        }
+        return next();
+    };
 };
