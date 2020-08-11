@@ -4,7 +4,8 @@
   "description": "Easy Single Sign-On with the configurable identity provider",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "v": "node -v"
   },
   "bin": {
     "griffin-cli": "bin/griffin-cli.js"
@@ -37,5 +38,10 @@
   },
   "devDependencies": {
     "ejs": "^3.1.3"
-  }
+  },
+  "engines": {
+    "node": ">=10.12.0",
+    "npm": ">=6.0.0"
+  },
+  "engineStrict": true
 }

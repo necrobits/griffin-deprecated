@@ -11,12 +11,11 @@ async function initializeDatabase() {
     if (!_.includes(SUPPORTED_DIALECTS, dialect)) {
         throw new Error('Unsupported dialect: ' + dialect);
     }
-
     let db;
     if (dialect === 'sqlite') {
         db = new Sequelize({
             dialect: 'sqlite',
-            storage: './griffin.sqlite',
+            storage: SQLITE_DB_FILE,
             logging: false
         });
     } else {

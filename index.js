@@ -1,3 +1,9 @@
-const startServer = require('./src/app');
+const GriffinServer = require('./src/app');
 
-startServer();
+async function start(){
+    const griffin = new GriffinServer();
+    await griffin.init('griffin.yaml');
+    griffin.startWebserver();
+}
+
+start();

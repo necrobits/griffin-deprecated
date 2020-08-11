@@ -3,7 +3,7 @@ const GriffinServer = require('../src/app');
 
 async function registerClient(serviceName, args) {
     const griffin = new GriffinServer();
-    await griffin.init('../griffin.yaml');
+    await griffin.init('griffin.yaml');
     try {
         const client = await griffin.createClient(serviceName, args.appUrl, args.trusted, args.callbackUrl);
         console.log("================================================================");
