@@ -84,14 +84,15 @@ class PublicUIController {
     }
 
     async _checkToken(req, res, next) {
-        if (req.cookies['token']) {
+        if (req.cookies['token'] && req.cookies['token'].length > 0) {
             try {
                 const token = req.cookies['token'];
                 const ssoResponse = await this.authService.authorize(req.ssoClient, token, req.ssoParams.response_type, req.ssoParams.state, req.ssoParams.redirect_uri);
                 applySSOResponse(res, ssoResponse);
             } catch (e) {
                 console.log(e);
-                res.redirect(this.loginUrl);
+                res.cookie('token','');
+                res.redirect(`${this.loginUrl}?client_id=${req.ssoParams.client_id}&response_type=${req.ssoParams.response_type}`);
             }
         } else {
             next();

@@ -52,6 +52,7 @@
             const systemZoom = width / window.screen.availWidth;
             const left = (width - w) / 2 / systemZoom + dualScreenLeft;
             const top = (height - h) / 2 / systemZoom + dualScreenTop;
+            console.log("url", this.loginUrl);
             this.dialog = window.open(this.loginUrl, this.dialogTitle,
                 `directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,
            width=${w/systemZoom},height=${h/systemZoom},top=${top},left=${left}`);

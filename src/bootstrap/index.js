@@ -38,8 +38,7 @@ function createExpressApp() {
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(cookieParser());
     const controller = new ApiController();
-    app.use('/api/v1', controller.router);
-
+    app.use(controller.router);
 
     const loginPath = config.get('sso.loginUrl');
     const signupPath = config.get('sso.signupUrl');

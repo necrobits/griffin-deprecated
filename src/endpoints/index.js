@@ -6,7 +6,9 @@ const _ = require('lodash');
 class ApiController {
     constructor() {
         this.authService = Container.get('service.auth');
+        this.cryptoService = Container.get('service.crypto');
         this.userService = Container.get('service.user');
+        this.config = Container.get('config');
         this.router = Router();
         this._setupRoutes();
     }
@@ -65,13 +67,26 @@ class ApiController {
         }
     }
 
+    showConfiguration(req,res){
+        res.json({
+            organization: this.config.get('system.organization'),
+            endpoints: {
+                login: this.config.get('sso.loginUrl'),
+                logout: this.config.get('sso.logoutUrl'),
+                signup: this.config.get('sso.signupUrl'),
+            },
+            publicKey: this.cryptoService.getPublicKey(),
+        })
+    }
 
     _setupRoutes() {
-        this.router.post('/auth', this.login.bind(this));
-        this.router.post('/register', this.register.bind(this));
-        this.router.post('/logout', this.logout.bind(this));
-        this.router.get('/usernamecheck', this.usernameCheck.bind(this));
-        this.router.get('/emailcheck', this.emailCheck.bind(this));
+        this.router.post('/api/v1/auth', this.login.bind(this));
+        this.router.post('/api/v1/register', this.register.bind(this));
+        this.router.post('/api/v1/logout', this.logout.bind(this));
+        this.router.get('/api/v1/usernamecheck', this.usernameCheck.bind(this));
+        this.router.get('/api/v1/emailcheck', this.emailCheck.bind(this));
+        this.router.get('/.well-known/griffin-config', this.showConfiguration.bind(this))
+
     }
 }
 

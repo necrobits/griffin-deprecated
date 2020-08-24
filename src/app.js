@@ -11,6 +11,7 @@ class GriffinServer {
         this.initialized = true;
     }
 
+
     createClient(serviceName, appUrl, isTrusted, callbackUrl) {
         const clientService = Container.get('service.client');
         return clientService.register({

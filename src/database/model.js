@@ -99,14 +99,6 @@ function constructClientModel() {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        private_key: {
-            type: DataTypes.BLOB,
-            allowNull: false,
-        },
-        public_key: {
-            type: DataTypes.BLOB,
-            allowNull: false,
-        },
         app_url: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -129,6 +121,7 @@ function constructClientModel() {
     ];
     return [model, indexes];
 }
+
 
 function _mapDefaultValue(fieldConfig) {
     const type = fieldConfig['type'];

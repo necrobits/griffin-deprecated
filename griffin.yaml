@@ -1,3 +1,9 @@
+system:
+  caKey: '/home/tran/dev/neuralgi/griffin/scripts/rootCA.pem'
+  caCert: '/home/tran/dev/neuralgi/griffin/scripts/rootCA.crt'
+  organization: 'Neural GI'
+  domain: 'neuralgi.tech'
+
 user:
   disableUsername: false
   emailVerification: false
@@ -43,7 +49,6 @@ sso:
   logoutUrl: /sso/logout
   signupUrl: /sso/signup
   defaultCallback: /sso/success
-
   token:
     issuer: neuralgi
     expiration: 604800
@@ -51,14 +56,12 @@ sso:
       - id
       - username
       - email
-
   encryption:
     keySize: 1024
     publicKey:
       type: spki
     privateKey:
       type: pkcs8
-
   client:
     id:
       salt: griffinidsalt

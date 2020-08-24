@@ -14,6 +14,7 @@ class AuthService {
     constructor() {
         this.userService = Container.get('service.user');
         this.clientService = Container.get('service.client');
+        this.cryptoService = Container.get('service.crypto');
         this.ssoConfig = Container.get('config').get('sso');
         this.jwtConfig = this.ssoConfig.token;
     }
@@ -28,7 +29,7 @@ class AuthService {
         const token = await sign({
             ...user,
             oaud: client.client_id,
-        }, client.private_key, {
+        }, this.cryptoService.getPrivateKey(), {
             algorithm: 'RS256',
             expiresIn: _.get(this.jwtConfig, 'expiration', 604800),
             issuer: _.get(this.jwtConfig, 'issuer', 'griffin'),
@@ -76,7 +77,6 @@ class AuthService {
         delete claims['sub'];
         delete claims['exp'];
         delete claims['aud'];
-        delete claims['oaud'];
         delete claims['iat'];
         delete claims['iss'];
         delete claims['nbf'];
@@ -89,11 +89,7 @@ class AuthService {
         if (claims == null) {
             throw new AppError('unauthorized');
         }
-        const originClient = await this.clientService.getClientById(claims['oaud']);
-        if (originClient == null) {
-            throw new AppError('invalid_client')
-        }
-        return verifyJWT(token, originClient.public_key);
+        return verifyJWT(token, this.cryptoService.getPublicKey());
     }
 
     _conformRedirectURI(client, redirectUri) {

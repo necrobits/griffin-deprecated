@@ -16,16 +16,13 @@ async function registerClient(serviceName, args) {
         console.log("Callback URL:", client.callback_url);
         console.log('');
         console.log("================================================================");
-        console.log("========================    KEY PAIR    ========================");
-        console.log("================================================================");
-        console.log(client.public_key);
-        console.log(client.private_key);
-        console.log("================================================================");
         console.log("================================================================");
     } catch (e) {
         console.log("Error:", e);
     }
 }
+
+
 
 async function startWebserver(args) {
     const griffin = new GriffinServer();

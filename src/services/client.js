@@ -7,7 +7,6 @@ const AppError = require('../errors');
 class ClientService {
     constructor() {
         this.clientRepo = Container.get('repo.client');
-        this.cryptoService = Container.get('service.crypto');
         const clientConfig = Container.get('config').get('sso.client');
         this.clientFieldConfigs = clientConfig.fields;
         this.idHasher = new Hashids(
@@ -27,15 +26,12 @@ class ClientService {
         for (let f of _.keys(this.clientFieldConfigs)) {
             validateFieldValue(f, clientData[f], this.clientFieldConfigs[f])
         }
-        const {publicKey, privateKey} = await this.cryptoService.generateKeyPair();
         const clientId = this.idHasher.encode(new Date().getTime() + Math.round(Math.random() * 0xFFFF));
         const clientSecret = this.secretHasher.encode(new Date().getTime() + Math.round(Math.random() * 0xFFFFFFFF));
 
         const newClient = {
             client_id: clientId,
             client_secret: clientSecret,
-            private_key: privateKey,
-            public_key: publicKey,
             is_trusted: clientData.is_trusted,
             service_name: clientData.service_name,
             app_url: clientData.app_url,
