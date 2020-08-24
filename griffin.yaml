@@ -1,6 +1,4 @@
 system:
-  caKey: '/home/tran/dev/neuralgi/griffin/scripts/rootCA.pem'
-  caCert: '/home/tran/dev/neuralgi/griffin/scripts/rootCA.crt'
   organization: 'Neural GI'
   domain: 'neuralgi.tech'
 

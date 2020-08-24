@@ -8,28 +8,38 @@
             this.dialogPoller = null;
         }
 
-        init(
+        async init(
             {
                 server,
-                containerId,
                 appId,
                 dialogTitle,
-                login,
-                logout
-            } = {}) {
+                containerId,
+            } = {}, callback) {
+            if (this.initialized) {
+                throw new Error("Griffin is already initialized!");
+            }
             if (!server) {
                 throw new Error("appId must be specified");
             }
             this.serverUrl = server;
             this.dialogTitle = dialogTitle || 'Griffin SSO';
+            this.containerId = containerId || 'griffin-init';
             if (!appId) {
                 throw new Error("appId must be specified");
             }
-            this.loginUrl = `${this.serverUrl}${login}?client_id=${appId}&response_type=token`;
-            this.logoutUrl = `${this.serverUrl}${logout}`;
-            this.containerId = containerId || 'griffin-init';
-            window.addEventListener('message', this._handleMessage.bind(this));
-            this.initialized = true;
+            try {
+                const handshakeResponse = await fetch(`${this.serverUrl}/.well-known/griffin-config`).then(r => r.json());
+                const endpoints = handshakeResponse.endpoints;
+                this.loginUrl = `${this.serverUrl}${endpoints.login}?client_id=${appId}&response_type=token`;
+                this.logoutUrl = `${this.serverUrl}${endpoints.logout}`;
+                window.addEventListener('message', this._handleMessage.bind(this));
+                this.initialized = true;
+                if (callback) {
+                    callback();
+                }
+            } catch (e) {
+                console.log("Error: Cannot connect to Griffin Server. Make sure your Griffin Server URL is correct.");
+            }
         }
 
         // Callback (profile, token)
@@ -55,7 +65,7 @@
             console.log("url", this.loginUrl);
             this.dialog = window.open(this.loginUrl, this.dialogTitle,
                 `directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,
-           width=${w/systemZoom},height=${h/systemZoom},top=${top},left=${left}`);
+           width=${w / systemZoom},height=${h / systemZoom},top=${top},left=${left}`);
             this.dialogPoller = setInterval(() => {
                 if (this.dialog && this.dialog.closed) {
                     clearInterval(this.dialogPoller);
@@ -91,14 +101,10 @@
 
         _onLoggedIn(token) {
             const claims = JSON.parse(atob(token.split('.')[1]));
-            delete claims['sub'];
-            delete claims['exp'];
-            delete claims['aud'];
-            delete claims['iat'];
-            delete claims['iss'];
-            delete claims['nbf'];
-            delete claims['jti'];
-            delete claims['oaud'];
+            const preservedClaims = ['sub', 'exp', 'aud', 'iat', 'iss', 'nbf', 'jti'];
+            for (let c of preservedClaims) {
+                delete claims[c];
+            }
             this.profile = claims;
             this.token = token;
             if (this.dialog) {

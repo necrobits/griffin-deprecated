@@ -13,6 +13,7 @@ const installMissingDependencies = require('../bootstrap/install');
 const ConfigProvider = require('../config');
 
 const express = require('express');
+
 const path = require('path');
 const _ = require('lodash');
 
@@ -28,16 +29,22 @@ function initializeDependencyInjection() {
     Container.set('service.auth', new AuthService());
 }
 
+function corsDelegate(origin, callback) {
+    callback(null, true);
+}
 
 function createExpressApp() {
     const app = express();
     const config = Container.get('config');
     const bodyParser = require('body-parser');
     const cookieParser = require('cookie-parser');
+    const cors = require('cors');
+    const controller = new ApiController();
+
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({extended: true}));
     app.use(cookieParser());
-    const controller = new ApiController();
+    app.use(cors({origin: corsDelegate}));
     app.use(controller.router);
 
     const loginPath = config.get('sso.loginUrl');

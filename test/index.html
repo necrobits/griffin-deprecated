@@ -21,14 +21,15 @@
         server: 'http://localhost:3000',
         login: '/sso/login',
         logout: '/sso/logout'
-    });
-
-    Griffin.getLoginStatus(function (profile, token) {
-        if (profile) {
-            griffinCallbackSuccess(profile);
-        } else {
-            griffinCallbackFailed();
-        }
+    }, function () {
+        console.log("Connected to Griffin Server");
+        Griffin.getLoginStatus(function (profile, token) {
+            if (profile) {
+                griffinCallbackSuccess(profile);
+            } else {
+                griffinCallbackFailed();
+            }
+        });
     });
 
     function griffinCallbackFailed() {

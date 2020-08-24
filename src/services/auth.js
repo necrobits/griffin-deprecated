@@ -28,7 +28,6 @@ class AuthService {
 
         const token = await sign({
             ...user,
-            oaud: client.client_id,
         }, this.cryptoService.getPrivateKey(), {
             algorithm: 'RS256',
             expiresIn: _.get(this.jwtConfig, 'expiration', 604800),
